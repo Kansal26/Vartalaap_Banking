@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Dashboard</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Public+Sans:wght@400;500;700;900" rel="stylesheet"/>
+    <link rel="stylesheet" href="/css/dashbord.css" />
+    <script>
+      (function () {
+        if (!window.allowBackNavigation) {
+          history.pushState(null, '', location.href);
+          window.addEventListener('popstate', function () {
+            history.pushState(null, '', location.href);
+          });
+          window.addEventListener('keydown', function (e) {
+            if ((e.altKey && e.key === 'ArrowLeft')) {
+              e.preventDefault();
+            }
+          });
+        }
+      })();
+    </script>
+</head>
+<body>
+  <div class="root">
+    <div class="layout-container">
+      <div class="main-content">
+        <div class="sidebar">
+          <div class="sidebar-inner">
+            <div class="menu-items">
+              <div class="menu-item">Home</div>
+              <div class="menu-item active" onclick="window.location.href='/apy'">Atal Pension Yojna</div>
+              <div class="menu-item active" onclick="window.location.href='/pmjjby'">Pradhan Mantri Jeevan Jyoti Bima Yojna</div>
+              <div class="menu-item active" onclick="window.location.href='/pmsby'">Pradhan Mantri Suraksha Bima Yojna</div>
+              <div class="menu-item" onclick="window.location.href='/login'">Log Out</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="dashboard">
+          <div class="header">
+            <div class="header-text">
+              <p class="heading">Welcome, <span th:text="${branchName}"></span> Dashboard</p>
+            </div>
+          </div>
+
+          <div class="tabs">
+            <a th:href="@{'/dashboard'(status='All')}" class="tab" th:classappend="${selectedStatus}=='All' ? 'active' : ''">All</a>
+            <a th:href="@{'/dashboard'(status='Pending')}" class="tab" th:classappend="${selectedStatus}=='Pending' ? 'active' : ''">Pending</a>
+            <a th:href="@{'/dashboard'(status='Approved')}" class="tab" th:classappend="${selectedStatus}=='Approved' ? 'active' : ''">Approved</a>
+            <a th:href="@{'/dashboard'(status='Rejected')}" class="tab" th:classappend="${selectedStatus}=='Rejected' ? 'active' : ''">Rejected</a>
+          </div>
+
+          <h2 class="section-title">Atal Pension Yojana (APY)</h2>
+          <div class="transaction-table-container">
+            <div class="transaction-table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Request ID</th>
+                    <th>Name</th>
+                    <th>Pension Tier</th>
+                    <th>Contribution Amount</th>
+                    <th>Status</th>
+                    <th>Submitted On</th>
+                    <th>Approver Remark</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="txn, iterStat : ${apyTransactions}">
+                    <td th:text="'REQ00' + ${iterStat.count}"></td>
+                    <td th:text="${txn.fullName}"></td>
+                    <td th:text="'₹' + ${txn.pensionTier}"></td>
+                    <td th:text="'₹' + ${txn.contriAmount}"></td>
+                    <td><button class="status-btn" th:text="${txn.status}"></button></td>
+                    <td th:text="${txn.submissionDate}"></td>
+                    <td th:text="${txn.approverRemark}"></td>
+                  </tr>
+                  <tr th:if="${apyTransactions == null or apyTransactions.isEmpty()}">
+                    <td colspan="5" style="text-align:center;">No APY transactions found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <h2 class="section-title">PMJJBY</h2>
+          <div class="transaction-table-container">
+            <div class="transaction-table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Request ID</th>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Submitted On</th>
+                    <th>Remark</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="txn, iterStat : ${pmjjbyTransactions}">
+                    <td th:text="'REQ10' + ${iterStat.count}"></td>
+                    <td th:text="${txn.fullName}"></td>
+                    <td th:text="'₹' + ${txn.amount}"></td>
+                    <td><button class="status-btn" th:text="${txn.status}"></button></td>
+                    <td th:text="${txn.submissionDate}"></td>
+                    <td th:text="${txn.approverRemark}"></td>
+                  </tr>
+                  <tr th:if="${pmjjbyTransactions == null or pmjjbyTransactions.isEmpty()}">
+                    <td colspan="7" style="text-align:center;">No PMJJBY transactions found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <h2 class="section-title">PMSBY</h2>
+          <div class="transaction-table-container">
+            <div class="transaction-table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Request ID</th>
+                    <th>Name</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Submitted On</th>
+                    <th>Approver Remark</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr th:each="txn, iterStat : ${pmsbyTransactions}">
+                    <td th:text="'REQ20' + ${iterStat.count}"></td>
+                    <td th:text="${txn.fullName}"></td>
+                    <td th:text="'₹' + ${txn.amount}"></td>
+                    <td><button class="status-btn" th:text="${txn.status}"></button></td>
+                    <td th:text="${txn.submissionDate}"></td>
+                    <td th:text="${txn.approverRemark}"></td>
+                  </tr>
+                  <tr th:if="${pmsbyTransactions == null or pmsbyTransactions.isEmpty()}">
+                    <td colspan="5" style="text-align:center;">No PMSBY transactions found.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div th:if="${success}">
+    <script>
+      alert("Information submitted successfully!");
+    </script>
+  </div>
+</body>
+</html>

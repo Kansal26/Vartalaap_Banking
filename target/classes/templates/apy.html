@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Stitch Design</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+    <link rel="stylesheet" href="/css/apy.css" />
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700;900&family=Public+Sans:wght@400;500;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <script>
+      (function () {
+        if (!window.allowBackNavigation) {
+          // Force initial state to prevent back
+          history.pushState(null, '', location.href);
+          window.addEventListener('popstate', function () {
+            history.pushState(null, '', location.href);
+          });
+    
+          // Disable back via keyboard (Alt+← or Backspace on some browsers)
+          window.addEventListener('keydown', function (e) {
+            if ((e.altKey && e.key === 'ArrowLeft') ) {
+              e.preventDefault();
+            }
+          });
+        }
+      })();
+    </script>
+    
+    
+  </head>
+  <body>
+    <div class="design-root">
+      <div class="layout-container">
+        <header class="header">
+          <div class="logo-section">
+            <div class="logo-icon">
+                <img src="/images/logo_CBI.png" alt="Logo" />
+            </div>
+            <h2>Central Bank of India</h2>
+          </div>
+          <div class="nav-actions">
+            <nav class="nav-links">
+              <a href="#" onclick="window.location.href='/dashboard'">Home</a>
+              <a href="#">Circulars</a>
+              <a href="#">Contact</a>
+            </nav>
+          </div>
+        </header>
+
+        <main class="main-content">
+          <div class="content-container">
+            <div class="form-title">
+              <p>Atal Pension Yojana Registration</p>
+            </div>
+            <form id = "APYForm" th:action="@{/submitApy}" method="post" th:object="${form}">
+              <div class="form-group">
+                <label>
+                  <p>Customer Name</p>
+                  <input type="text" th:field="*{fullName}" placeholder="Enter full name" name="fullName" required />
+                </label>
+              </div>
+              <div class="form-group">
+                <label>
+                  <p>Age</p>
+                  <input type="text" th:field="*{age}" placeholder="Enter age" name="age" required />
+                </label>
+              </div>
+              <div class="form-group">
+                <label>
+                  <p>Aadhaar Card Number</p>
+                  <input type="text" 
+                  th:field="*{aadharCard}" 
+                  placeholder="Enter Aadhaar card number" 
+                  name="aadharCard"
+                  maxlength="12"
+                  minlength="12"
+                  pattern="\d{12}$"
+                  title="Aadhar must be 12 digits" 
+                  required/>
+                </label>
+              </div>
+              <div class="form-group">
+                <label>
+                  <p>Pension Tier</p>
+                  <select th:field="*{pensionTier}" required>
+                    <option value="one">Select your pension tier</option>
+                    <option value="1000">1000</option>
+                    <option value="2000">2000</option>
+                    <option value="3000">3000</option>
+                    <option value="4000">4000</option>
+                    <option value="5000">5000</option>
+                  </select>
+                </label>
+              </div>
+              <div class="form-group">
+                <label>
+                  <p>Contribution Amount</p>
+                  <input type="text" th:field="*{contriAmount}" placeholder="Enter contribution amount"  name="contriAmount" required/>
+                </label>
+              </div>
+              <div class="submit-button">
+                <button type="submit" ><span>Submit</span></button>
+              </div>
+            </form>
+          </div>
+        </main>
+      </div>
+    </div>
+    <script th:inline="javascript">
+      /*<![CDATA[*/
+      let success = /*[[${success}]]*/ false;
+      if (success) {
+          alert("Information submitted successfully!");
+      }
+      /*]]>*/
+  </script>
+  
+  </body>
+</html>

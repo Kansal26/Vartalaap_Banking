@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PMJJBY Registration</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700;900&family=Public+Sans:wght@400;500;700;900&display=swap" />
+  <link rel="stylesheet" href="/css/pmjjby.css" />
+  <script>
+    (function () {
+      if (!window.allowBackNavigation) {
+        // Force initial state to prevent back
+        history.pushState(null, '', location.href);
+        window.addEventListener('popstate', function () {
+          history.pushState(null, '', location.href);
+        });
+  
+        // Disable back via keyboard (Alt+← or Backspace on some browsers)
+        window.addEventListener('keydown', function (e) {
+          if ((e.altKey && e.key === 'ArrowLeft') ) {
+            e.preventDefault();
+          }
+        });
+      }
+    })();
+  </script>
+  
+</head>
+<body>
+  <div class="design-root">
+    <div class="layout-container">
+      <header class="header">
+        <div class="header-left">
+          <div class="logo">
+            <img src="/images/logo_CBI.png" alt="Logo" />
+          </div>
+          <h2>PMSBY Registration</h2>
+        </div>
+        <div class="header-right">
+          <nav class="nav-links">
+            <a href="#" onclick="window.location.href='/dashboard'">Home</a>
+            <a href="#">Circulars</a>
+            <a href="#">Contact</a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="main-form">
+        <h1>PMSBY Registration Form</h1>
+        <form id="PMSBYForm" th:action="@{/submitPmsby}" method="post" th:object="${form}">
+          <div class="form-group">
+            <label>Customer Name</label>
+            <input type="text" placeholder="Enter full name" name="fullName" th:field="*{fullName}" required />
+          </div>
+          <div class="form-group">
+            <label>Age</label>
+            <input type="text" placeholder="Enter Customer's Age" name="age" th:field="*{age}" required />
+          </div>
+          <div class="form-group">
+            <label>Aadhaar Card Number</label>
+            <input type="text" 
+            placeholder="Enter 12-digit Aadhaar number" 
+            name="aadharCard" 
+            th:field="*{aadharCard}" 
+            pattern="\d{12}$"
+            maxlength="12"
+            minlength="12"
+            title="Aadhar must be 12 digits"
+            required/>
+          </div>
+          <div class="form-group">
+            <label>Saving Bank Account Number</label>
+            <input type="text" placeholder="Enter bank account number" name="bankAcc" th:feild="*{bankAcc}" required />
+          </div>
+          <div class="form-group">
+            <label>IFSC Code</label>
+            <input type="text" placeholder="Enter bank's IFSC code" />
+          </div>
+          <div class="form-group">
+            <label>PAN Card Number</label>
+            <input type="text" placeholder="Enter PAN card number" name="panCard" th:feild="*{panCard}" required />
+          </div>
+          <div class="form-group">
+            <label>Mobile Number</label>
+            <input type="text" 
+            placeholder="Enter mobile number"
+            maxlength="10"
+            minlength="10"
+            title="Phone Number must be 10 digits"
+            pattern="\d{10}$"
+            required />
+          </div>
+
+          <div class="checkbox-row">
+            <p>I confirm the availability of consent</p>
+            <input type="checkbox" />
+          </div>
+
+          <div class="form-actions">
+            <button type="button">Upload Consent Document</button>
+          </div>
+
+          <div class="checkbox-row">
+            <p>I authorize auto-debit for premium payment</p>
+            <input type="checkbox" />
+          </div>
+
+          <div class="form-actions">
+            <button type="button">Upload Auto-Debit Consent</button>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="submit-button">Submit</button>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    let success = /*[[${success}]]*/ false;
+    if (success) {
+        alert("Information submitted successfully!");
+    }
+    /*]]>*/
+</script>
+<script>
+  function showFileName(inputId, labelId) {
+    const input = document.getElementById(inputId);
+    const label = document.getElementById(labelId);
+    input.addEventListener('change', () => {
+      label.textContent = input.files.length > 0 ? input.files[0].name : "";
+    });
+  }
+
+  showFileName("consentDoc", "consentFileName");
+  showFileName("autoDebitDoc", "autoDebitFileName");
+</script>
+</body>
+</html>

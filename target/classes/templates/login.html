@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Cemtral Bank of India</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Public+Sans:wght@400;500;700;900"
+      rel="stylesheet"
+    />
+    <script>
+      (function () {
+        if (!window.allowBackNavigation) {
+          // Force initial state to prevent back
+          history.pushState(null, '', location.href);
+          window.addEventListener('popstate', function () {
+            history.pushState(null, '', location.href);
+          });
+    
+          // Disable back via keyboard (Alt+← or Backspace on some browsers)
+          window.addEventListener('keydown', function (e) {
+            if ((e.altKey && e.key === 'ArrowLeft') ) {
+              e.preventDefault();
+            }
+          });
+        }
+      })();
+    </script>
+    
+    <link rel="stylesheet" href="/css/login.css" />
+</head>
+<body>
+    <div class="app-container">
+        <div class="layout">
+            <header class="header">
+                <div class="logo-title">
+                    <div class="logo-icon">
+                        <img src="/images/logo_CBI.png" alt="Logo" class="logo-img" />
+                    </div>
+                    <h2>Central Bank of India</h2>
+                </div>
+            </header>
+        
+        <div class="main-content">
+            <div class="card">
+                <img src ="/images/image.webp" class="hero-image">
+                <h2 class="form-title">Employee Login</h2>
+                <form th:action="@{/login}" method="post">
+                    <div class="form-group">
+                        <label for="employee-code">Employee Code:</label>
+                        <input type="text" id ="employee-code" name="username" required /><br><br>
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <input type="password" id="password" name="password" required /><br><br>
+                    </div>
+                    <div class="form-action">
+                        <button type="submit">Login</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    </div>
+    
+</body>
+</html>

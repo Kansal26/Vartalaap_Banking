@@ -1,0 +1,159 @@
+body {
+    margin: 0;
+    font-family: "Public Sans", "Noto Sans", sans-serif;
+    background-color: #f8fafc;
+  }
+  
+  .design-root {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .layout-container {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+  }
+  
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 40px;
+    border-bottom: 1px solid #e7edf4;
+    background: white;
+  }
+  
+  .header-left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    color: #0d141c;
+  }
+  
+  .logo img {
+    width: 36px;
+    height: 36px;
+  }
+  
+  .header-left h2 {
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+  }
+  
+  .nav-links a {
+    margin: 0 8px;
+    text-decoration: none;
+    color: #0d141c;
+    font-weight: 500;
+    font-size: 14px;
+  }
+  
+  .help-button {
+    background-color: #e7edf4;
+    border: none;
+    border-radius: 9999px;
+    padding: 8px;
+    cursor: pointer;
+  }
+  
+  .profile-pic {
+    width: 40px;
+    height: 40px;
+    background-image: url("https://lh3.googleusercontent.com/aida-public/AB6AXuCxnkZgYy-FFE78VaQMcllTt-7KiBTNk2DJVR1_2KI99BRQPHIg3jAuGfn_gXmHytqy5z-20jfILBdEp9cbEZ02xhTssOBmfgiQTPkBhwxTtNKchbdPTt79b0zm0UbdgaUOPQXK-nsCVggy7M9wgi8ZasjLlleodG2QU-xpdEVfaoBkncSogk7U1kWRr_33K-NqzWz9gPx6bPE5HQ2K-FpiKSwuxKTgOMjQFOEjDY9HDB2Jh2PBIUX9gMKAIs6w0FuAbPeE6hSIYEY");
+    background-size: cover;
+    background-position: center;
+    border-radius: 50%;
+  }
+  
+  .main-form {
+    padding: 24px 300px;
+    flex-grow: 1;
+    background: #f8fafc;
+  }
+  
+  .main-form h1 {
+    font-size: 32px;
+    font-weight: bold;
+    color: #0d141c;
+    margin-bottom: 16px;
+  }
+  
+  form {
+    max-width: 750px;
+  }
+  
+  .form-group {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .form-group label {
+    font-weight: 500;
+    margin-bottom: 8px;
+    color: #0d141c;
+  }
+  
+  .form-group input {
+    height: 56px;
+    border-radius: 12px;
+    border: none;
+    background-color: #e7edf4;
+    padding: 0 16px;
+    font-size: 16px;
+    color: #0d141c;
+  }
+  
+  .form-group input::placeholder {
+    color: #0d141c;
+  }
+  
+  .checkbox-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8fafc;
+    padding: 12px 0;
+    border-bottom: 1px solid #e7edf4;
+  }
+  
+  .checkbox-row p {
+    color: #0d141c;
+    font-size: 16px;
+  }
+  
+  .form-actions {
+    margin: 16px 0;
+    display: flex;
+    justify-content: flex-end;
+  }
+  
+  .form-actions button {
+    background-color: #e7edf4;
+    color: #0d141c;
+    font-weight: bold;
+    padding: 10px 16px;
+    border: none;
+    border-radius: 9999px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  
+  .submit-button {
+    background-color: #0b79ee;
+    color: white;
+  }
+
+  .submit-button:hover {
+    background-color:#055dc2;
+    color:white;
+  }
+  

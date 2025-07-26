@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Approver Dashboard</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Public+Sans:wght@400;500;700;900" rel="stylesheet"/>
+  <link rel="stylesheet" th:href="@{/css/approver_dashboard.css}" />
+
+  <script>
+    (function () {
+      if (!window.allowBackNavigation) {
+        history.pushState(null, '', location.href);
+        window.addEventListener('popstate', function () {
+          history.pushState(null, '', location.href);
+        });
+        window.addEventListener('keydown', function (e) {
+          if ((e.altKey && e.key === 'ArrowLeft')) {
+            e.preventDefault();
+          }
+        });
+      }
+    })();
+  </script>
+</head>
+<body>
+<div class="root">
+  <div class="layout-container">
+    <div class="main-content">
+      <div class="sidebar">
+        <div class="sidebar-inner">
+          <div class="menu-items">
+            <div class="menu-item">Home</div>
+            <div class="menu-item" onclick="window.location.href='/login'">Log Out</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="dashboard">
+        <div class="header">
+          <div class="header-text">
+            <p class="heading">Approver Dashboard</p>
+          </div>
+        </div>
+
+        <div class="tabs">
+          <a th:href="@{'/approver_dashboard'(status='All')}" class="tab" th:classappend="${selectedStatus}=='All' ? 'active' : ''">All</a>
+          <a th:href="@{'/approver_dashboard'(status='Pending')}" class="tab" th:classappend="${selectedStatus}=='Pending' ? 'active' : ''">Pending</a>
+          <a th:href="@{'/approver_dashboard'(status='Approved')}" class="tab" th:classappend="${selectedStatus}=='Approved' ? 'active' : ''">Approved</a>
+          <a th:href="@{'/approver_dashboard'(status='Rejected')}" class="tab" th:classappend="${selectedStatus}=='Rejected' ? 'active' : ''">Rejected</a>
+        </div>
+
+        <!-- ========== APY ========== -->
+        <h2 class="section-title">Atal Pension Yojana (APY)</h2>
+        <div class="transaction-table-container">
+          <div class="transaction-table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Tier</th>
+                  <th>Age</th>
+                  <th>Status</th>
+                  <th>Branch</th>
+                  <th>Compliance</th>
+                  <th>Remark</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="txn, iterStat : ${apyTransactions}">
+                  <td th:text="'APY00' + ${iterStat.count}"></td>
+                  <td th:text="${txn.pensionTier}"></td>
+                  <td th:text="${txn.age}"></td>
+                  <td><button class="status-btn" th:text="${txn.status}"></button></td>
+                  <td th:text="${txn.submittedBy}"></td>
+                  <td th:text="${txn.complianceStatus}"
+                  th:classappend="${txn.complianceStatus=='Compliant'}? 'text-green' : 'text-red'"></td>
+                  <td th:text="${txn.approverRemark != null ? txn.approverRemark : '—'}"></td>
+                  <td>
+                    <button class="review-button"
+                            onclick="showModal(this)"
+                            th:data-id="${txn.id}"
+                            data-scheme="apy"
+                            data-schemename="Atal Pension Yojana"
+                            th:data-fullname="${txn.fullName}"
+                            th:data-submittedon="${txn.submissionDate}"
+                            th:data-aadhar="${txn.aadharCard}"
+                            th:data-amount="${txn.contriAmount}">Review</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ========== PMJJBY ========== -->
+        <h2 class="section-title">Pradhan Mantri Jeevan Jyoti Bima Yojana (PMJJBY)</h2>
+        <div class="transaction-table-container">
+          <div class="transaction-table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Name</th>
+                  <th>Age</th>
+                  <th>Status</th>
+                  <th>Branch</th>
+                  <th>Compliance</th>
+                  <th>Remark</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="txn, iterStat : ${pmjjbyTransactions}">
+                  <td th:text="'PMJJBY00' + ${iterStat.count}"></td>
+                  <td th:text="${txn.fullName}"></td>
+                  <td th:text="${txn.age}"></td>
+                  <td><button class="status-btn" th:text="${txn.status}"></button></td>
+                  <td th:text="${txn.submittedBy}"></td>
+                  <td th:text="${txn.complianceStatus}"
+                  th:classappend="${txn.complianceStatus=='Compliant'}? 'text-green' : 'text-red'"></td>
+                  <td th:text="${txn.approverRemark != null ? txn.approverRemark : '—'}"></td>
+                  <td>
+                    <button class="review-button"
+                            onclick="showModal(this)"
+                            th:data-id="${txn.requestID}"
+                            data-scheme="pmjjby"
+                            data-schemename="PMJJBY"
+                            th:data-fullname="${txn.fullName}"
+                            th:data-submittedon="${txn.submissionDate}"
+                            th:data-aadhar="${txn.aadharCard}"
+                            th:data-amount="${txn.amount}">Review</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- ========== PMSBY ========== -->
+        <h2 class="section-title">Pradhan Mantri Suraksha Bima Yojana (PMSBY)</h2>
+        <div class="transaction-table-container">
+          <div class="transaction-table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Request ID</th>
+                  <th>Name</th>
+                  <th>Age</th>
+                  <th>Status</th>
+                  <th>Branch</th>
+                  <th>Compilance</th>
+                  <th>Remark</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr th:each="txn, iterStat : ${pmsbyTransactions}">
+                  <td th:text="'PMSBY00' + ${iterStat.count}"></td>
+                  <td th:text="${txn.fullName}"></td>
+                  <td th:text="${txn.age}"></td>
+                  <td><button class="status-btn" th:text="${txn.status}"></button></td>
+                  <td th:text="${txn.submittedBy}"></td>
+                  <td th:text="${txn.complianceStatus}"
+                  th:classappend="${txn.complianceStatus=='Compliant'}? 'text-green' : 'text-red'"></td>
+                  <td th:text="${txn.approverRemark != null ? txn.approverRemark : '—'}"></td>
+                  <td>
+                    <button class="review-button"
+                            onclick="showModal(this)"
+                            th:data-id="${txn.requestID}"
+                            data-scheme="pmsby"
+                            data-schemename="PMSBY"
+                            th:data-fullname="${txn.fullName}"
+                            th:data-submittedon="${txn.submissionDate}"
+                            th:data-aadhar="${txn.aadharCard}"
+                            th:data-amount="${txn.amount}">Review</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal and overlay -->
+<div id="overlay" class="overlay" onclick="hideModal()"></div>
+<div id="modal" class="modal">
+  <div class="modal-header">
+    <h2 class="modal-title">Request Details</h2>
+  </div>
+  <div class="modal-body">
+    <p><strong>REQUEST NO:</strong> <span id="modalRequestNo"></span></p>
+    <p><strong>SCHEME NAME:</strong> <span id="modalSchemeName"></span></p>
+    <p><strong>NAME:</strong> <span id="modalFullName"></span></p>
+    <p><strong>SUBMITTED ON:</strong> <span id="modalSubmittedOn"></span></p>
+    <p><strong>AMOUNT:</strong> ₹<span id="modalAmount"></span></p>
+    <p><strong>Aadhar Number:</strong><span id="modalAadhar"></span></p>
+    <p><strong>REMARK:</strong></p>
+    <textarea id="approverRemark" name="remark" rows="4" cols="50" placeholder="Write your remark here..." required></textarea>
+  </div>
+  <div class="modal-footer">
+    <form id="decisionForm" method="post" th:action="@{/decision}" onsubmit="return submitDecision(event)">
+      <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
+      <input type="hidden" id="decisionAction" name="action" />
+      <input type="hidden" id="decisionScheme" name="scheme" />
+      <input type="hidden" id="decisionRequestId" name="requestId" />
+      <textarea style="display:none;" name="remark" id="hiddenRemark"></textarea>
+      <div style="margin-top: 10px;">
+        <button type="button" class="approve-btn" onclick="prepareSubmit('Approved')">Approve</button>
+        <button type="button" class="reject-btn" onclick="prepareSubmit('Rejected')">Reject</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  let currentScheme = null;
+  let currentRequestId = null;
+
+  function showModal(button) {
+    document.getElementById("modal").style.display = "block";
+    document.getElementById("overlay").style.display = "block";
+
+    const id = button.dataset.id;
+    const scheme = button.dataset.scheme;
+
+    currentRequestId = id;
+    currentScheme = scheme;
+
+    document.getElementById("modalRequestNo").innerText = id;
+    document.getElementById("modalSchemeName").innerText = button.dataset.schemename;
+    document.getElementById("modalFullName").innerText = button.dataset.fullname;
+    document.getElementById("modalSubmittedOn").innerText = button.dataset.submittedon;
+    document.getElementById("modalAmount").innerText = button.dataset.amount;
+    document.getElementById("modalAadhar").innerText=button.dataset.aadhar;
+    document.getElementById("approverRemark").value = "";
+  }
+
+  function hideModal() {
+    document.getElementById("modal").style.display = "none";
+    document.getElementById("overlay").style.display = "none";
+  }
+
+  function prepareSubmit(action) {
+    const remark = document.getElementById("approverRemark").value.trim();
+    if (!remark) {
+      alert("Please enter a remark.");
+      return;
+    }
+    document.getElementById("decisionAction").value = action;
+    document.getElementById("decisionScheme").value = currentScheme;
+    document.getElementById("decisionRequestId").value = currentRequestId;
+    document.getElementById("hiddenRemark").value = remark;
+    document.getElementById("decisionForm").submit();
+  }
+
+  function submitDecision(event) {
+    return true;
+  }
+</script>
+</body>
+</html>

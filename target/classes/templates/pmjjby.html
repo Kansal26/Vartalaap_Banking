@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PMJJBY Registration</title>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;700;900&family=Public+Sans:wght@400;500;700;900&display=swap" />
+  <link rel="stylesheet" href="/css/pmjjby.css" />
+  <script>
+    (function () {
+      if (!window.allowBackNavigation) {
+        // Force initial state to prevent back
+        history.pushState(null, '', location.href);
+        window.addEventListener('popstate', function () {
+          history.pushState(null, '', location.href);
+        });
+  
+        // Disable back via keyboard (Alt+← or Backspace on some browsers)
+        window.addEventListener('keydown', function (e) {
+          if ((e.altKey && e.key === 'ArrowLeft') ) {
+            e.preventDefault();
+          }
+        });
+      }
+    })();
+  </script>
+  
+  
+  <style>
+    .custom-file-input {
+      display: none;
+    }
+
+    .custom-file-label {
+      display: inline-block;
+      padding: 10px 16px;
+      background-color: #b7b9bc;
+      color: #fff;
+      cursor: pointer;
+      border-radius: 5px;
+      font-weight: 500;
+      margin-top: 10px;
+      width: 300px;
+    }
+
+    .custom-file-label:hover {
+      background-color: #abafb4;
+    }
+
+    .file-name {
+      display: block;
+      margin-top: 5px;
+      color: #7f7777;
+      font-style: italic;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="design-root">
+    <div class="layout-container">
+      <header class="header">
+        <div class="header-left">
+          <div class="logo">
+            <img src="/images/logo_CBI.png" alt="Logo" />
+          </div>
+          <h2>PMJJBY Registration</h2>
+        </div>
+        <div class="header-right">
+          <nav class="nav-links">
+            <a href="#" onclick="window.location.href='/dashboard'">Home</a>
+            <a href="#">Circulars</a>
+            <a href="#">Contact</a>
+          </nav>
+        </div>
+      </header>
+
+      <main class="main-form">
+        <h1>PMJJBY Registration Form</h1>
+        <form id="PMJJBYForm" th:action="@{/submitPmjjby}" method="post" enctype="multipart/form-data" th:object="${form}">
+
+          <div class="form-group">
+            <label>Customer Name</label>
+            <input type="text" placeholder="Enter full name" name="fullName" th:field="*{fullName}" required />
+          </div>
+          <div class="form-group">
+            <label>Age</label>
+            <input type="text" placeholder="Enter your age" name="age" th:field="*{age}" required />
+          </div>
+          <div class="form-group">
+            <label>Aadhaar Card Number</label>
+            <input type="text" th:field="*{aadharCard}" name="aadharCard" placeholder="Enter 12-digit Aadhaar number" pattern="^\d{12}$" maxlength="12" minlength="12" required title="Aadhaar must be exactly 12 digits" />
+          </div>
+          <div class="form-group">
+            <label>Saving Bank Account Number</label>
+            <input type="text" placeholder="Enter bank account number" th:field="*{bankAcc}" name="bankAcc" required />
+          </div>
+          <div class="form-group">
+            <label>IFSC Code</label>
+            <input type="text" placeholder="Enter bank's IFSC code" />
+          </div>
+          <div class="form-group">
+            <label>PAN Card Number</label>
+            <input type="text" placeholder="Enter PAN card number" />
+          </div>
+          <div class="form-group">
+            <label>Mobile Number</label>
+            <input type="text" placeholder="Enter mobile number" pattern="\d{10}$" maxlength="10" minlength="10" required title="Mobile Number must be 10 digits exactly" />
+          </div>
+
+          <div class="checkbox-row">
+            <p>I confirm the availability of consent</p>
+            <input type="checkbox" required />
+          </div>
+
+          <!-- Upload Consent Document -->
+          <div class="form-group">
+            <input type="file" id="consentDoc" name="consentDoc" class="custom-file-input" required />
+            <label for="consentDoc" class="custom-file-label">Upload Consent Document></label>
+            <span id="consentFileName" class="file-name"></span>
+          </div>
+
+          <div class="checkbox-row">
+            <p>I authorize auto-debit for premium payment</p>
+            <input type="checkbox" required />
+          </div>
+
+          <!-- Upload Auto-Debit Consent -->
+          <div class="form-group">
+            <input type="file" id="autoDebitDoc" name="autoDebitDoc" class="custom-file-input" required />
+            <label for="autoDebitDoc" class="custom-file-label">Upload Auto-Debit Consent></label>
+            <span id="autoDebitFileName" class="file-name"></span>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="submit-button">Submit</button>
+          </div>
+        </form>
+      </main>
+    </div>
+  </div>
+
+  <!-- Show selected filename -->
+  <script>
+    function showFileName(inputId, labelId) {
+      const input = document.getElementById(inputId);
+      const label = document.getElementById(labelId);
+      input.addEventListener('change', () => {
+        label.textContent = input.files.length > 0 ? input.files[0].name : "";
+      });
+    }
+
+    showFileName("consentDoc", "consentFileName");
+    showFileName("autoDebitDoc", "autoDebitFileName");
+  </script>
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    let success = /*[[${success}]]*/ false;
+    if (success) {
+        alert("Information submitted successfully!");
+    }
+    /*]]>*/
+</script>
+</body>
+</html>
