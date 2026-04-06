@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Jeevan Jyoti Bima Yojna (PMJJBY) Registration - Vartaalap Banking</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Public+Sans:wght@400;500;700;900"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --primary-indigo: #1e1b4b; /* Deeper Indigo */
+      --accent-gold: #94a3b8;    /* Muted Slate */
+      --sidebar-bg: #ffffff;
+      --content-bg: #f8fafc;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --white: #ffffff;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Public Sans', sans-serif;
+      background-color: var(--content-bg);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: var(--text-main);
+    }
+
+    .admin-header {
+      background: #1e1b4b;
+      color: white;
+      padding: 0.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 56px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .brand-logo-img {
+      height: 32px;
+      width: auto;
+      filter: brightness(0) invert(1);
+    }
+
+    .brand-text {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .main-wrapper {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      min-width: 280px;
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid #e2e8f0;
+      display: flex !important;
+      flex-direction: column;
+      padding: 1.5rem 0;
+      overflow-y: auto;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-item {
+      padding: 0.875rem 1.75rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      margin: 4px 12px;
+      border-radius: 12px;
+    }
+
+    .sidebar-item:hover {
+      background-color: #f1f5f9;
+      color: var(--primary-indigo);
+    }
+
+    .sidebar-item.active {
+      background-color: #eef2ff;
+      color: var(--primary-indigo);
+      box-shadow: inset 0 0 0 1px rgba(26, 35, 126, 0.1);
+    }
+
+    /* Content Area Styles */
+    .content-area {
+      flex: 1;
+      padding: 2.5rem;
+      overflow-y: auto;
+      background: radial-gradient(circle at top right, #f8fafc, #f1f5f9);
+    }
+
+    .section-card {
+      background: var(--white);
+      padding: 2.5rem;
+      border-radius: 24px;
+      box-shadow: var(--shadow-md);
+      margin: 0 auto 2.5rem auto;
+      max-width: 800px;
+      border: 1px solid #f1f5f9;
+    }
+
+    .section-title {
+      color: var(--primary-indigo);
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-top: 0;
+      margin-bottom: 2rem;
+      border-bottom: 2px solid #f1f5f9;
+      padding-bottom: 1rem;
+    }
+
+    .sidebar.collapsed {
+      width: 0;
+      padding: 0;
+      margin: 0;
+      opacity: 0;
+      overflow: hidden;
+    }
+
+    .btn {
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+
+    .btn-danger {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #dc2626;
+    }
+
+    /* Form Styles */
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="number"],
+    .form-group input[type="date"],
+    .form-group select {
+      width: 100%;
+      height: 52px;
+      padding: 0 1rem;
+      border: 2px solid #f1f5f9;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-family: inherit;
+      box-sizing: border-box;
+      background: #f8fafc;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      border-color: var(--primary-indigo);
+      background: white;
+      outline: none;
+      box-shadow: 0 0 0 4px rgba(26, 35, 126, 0.05);
+    }
+
+    .submit-button {
+      width: 100%;
+      height: 56px;
+      background: #1e1b4b;
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 1.5rem;
+      box-shadow: 0 4px 6px rgba(26, 35, 126, 0.2);
+    }
+
+    .submit-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 8px 15px rgba(26, 35, 126, 0.3);
+    }
+
+    .custom-file-input {
+      display: none;
+    }
+
+    .custom-file-label {
+      display: inline-block;
+      padding: 10px 24px;
+      background-color: transparent;
+      color: var(--primary-indigo);
+      cursor: pointer;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 0.875rem;
+      border: 2px solid var(--primary-indigo);
+      transition: all 0.2s;
+    }
+
+    .custom-file-label:hover {
+      background-color: rgba(26, 35, 126, 0.05);
+    }
+
+    .upload-wrapper {
+      border: 2px dashed #e2e8f0;
+      background-color: #f8fafc;
+      padding: 2rem;
+      border-radius: 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 8px;
+    }
+
+    .cloud-icon {
+      width: 40px;
+      height: 40px;
+      fill: var(--text-muted);
+    }
+
+    .file-name {
+      display: block;
+      margin-top: 8px;
+      color: var(--primary-indigo);
+      font-weight: 600;
+      font-size: 0.875rem;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem;
+      background: #f1f5f9;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+    }
+
+    .checkbox-row p {
+      margin: 0;
+      font-weight: 700;
+      font-size: 0.875rem;
+      color: var(--text-main);
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 22px;
+      height: 22px;
+      cursor: pointer;
+    }
+
+    /* Custom Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(4px);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 2.5rem;
+      border-radius: 24px;
+      max-width: 420px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      transform: scale(0.9);
+      transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .modal-overlay.active .modal-content {
+      transform: scale(1);
+    }
+
+    .modal-title {
+      color: var(--primary-indigo);
+      font-size: 1.5rem;
+      font-weight: 800;
+      margin-bottom: 1rem;
+    }
+
+    .modal-message {
+      color: var(--text-muted);
+      font-weight: 600;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .modal-btn {
+      width: 100%;
+      height: 48px;
+      background: var(--primary-indigo);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .modal-btn:hover {
+      background: #2d2a5d;
+      transform: translateY(-1px);
+    }
+
+    /* Demo OTP Card */
+    .demo-otp-card {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border: 1px solid #bae6fd;
+      padding: 1.25rem;
+      border-radius: 16px;
+      margin-bottom: 1.5rem;
+      display: none;
+      animation: slideDown 0.3s ease-out;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .demo-otp-label {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: #0369a1;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .demo-otp-value {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: #0c4a6e;
+      letter-spacing: 0.2em;
+      display: block;
+      text-align: center;
+      padding: 0.5rem;
+      background: white;
+      border-radius: 10px;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.05);
+    }
+
+    .required-star {
+      color: #ef4444;
+      margin-left: 4px;
+      font-weight: bold;
+    }
+  </style>
+  <script>
+    (function () {
+      if (!window.allowBackNavigation) {
+        history.pushState(null, '', location.href);
+        window.addEventListener('popstate', function () {
+          history.pushState(null, '', location.href);
+        });
+      }
+    })();
+  </script>
+</head>
+
+<body>
+
+  <header class="admin-header">
+    <div class="header-left">
+      <button id="sidebarToggle" class="btn"
+        style="background: rgba(255,255,255,0.1); color: white; font-size: 1.25rem; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.2);">
+        ☰
+      </button>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <img src="/images/logo.png" alt="Logo" class="brand-logo-img">
+        <span class="brand-text">Vartaalap Banking</span>
+      </div>
+    </div>
+    <div class="user-info" style="display: flex; align-items: center; gap: 20px;">
+      <div style="text-align: right;">
+        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.7); font-weight: 600; text-transform: uppercase;">Portal Activity</div>
+        <span th:if="${branchName}" th:text="|${branchName} Operations|" style="font-weight: 700;">Branch Operations</span>
+        <span th:unless="${branchName}" style="font-weight: 700;">Internal Terminal</span>
+      </div>
+      <form th:action="@{/logout}" method="post" style="display: inline;">
+        <button type="submit" class="btn btn-danger">Exit</button>
+      </form>
+    </div>
+  </header>
+
+
+  <div class="main-wrapper">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <a href="/dashboard" class="sidebar-item">
+        <span>Dashboard Home</span>
+      </a>
+      <a href="/apy" class="sidebar-item">
+        <span>Atal Pension Yojna</span>
+      </a>
+      <a href="/pmjjby" class="sidebar-item active">
+        <span>Jeevan Jyoti Bima Yojna (PMJJBY)</span>
+      </a>
+      <a href="/pmsby" class="sidebar-item">
+        <span>Suraksha Bima Yojna (PMSBY)</span>
+      </a>
+      <a href="/kvp" class="sidebar-item">
+        <span>Kisan Vikas Patra (KVP)</span>
+      </a>
+      <a href="/pmmy" class="sidebar-item">
+        <span>Mudra Yojana (PMMY)</span>
+      </a>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+      <div class="section-card">
+        <h2 class="section-title">Jeevan Jyoti Bima Yojna (PMJJBY) Registration Form</h2>
+        <form id="PMJJBYForm" th:action="@{/submitPmjjby}" method="post" enctype="multipart/form-data"
+          th:object="${form}" novalidate>
+
+          <div class="form-group" th:if="${enabledFields.contains('fullName')}">
+            <label>Customer Name<span class="required-star">*</span></label>
+            <input type="text" placeholder="Enter full name" name="fullName" th:field="*{fullName}" required />
+          </div>
+          <div class="form-group" th:if="${enabledFields.contains('age')}">
+            <label>Age<span class="required-star">*</span></label>
+            <input type="text" placeholder="Enter your age" name="age" th:field="*{age}" required />
+          </div>
+          <div class="form-group" th:if="${enabledFields.contains('aadharCard')}">
+            <label>Aadhaar Card Number<span class="required-star">*</span></label>
+            <input type="text" th:field="*{aadharCard}" id="aadharCard" name="aadharCard"
+              placeholder="Enter 12-digit Aadhaar number" pattern="^\d{12}$" maxlength="12" minlength="12" required
+              title="Aadhaar must be exactly 12 digits" />
+          </div>
+          <div class="form-group" th:if="${enabledFields.contains('bankAcc')}">
+            <label>Saving Bank Account Number<span class="required-star">*</span></label>
+            <input type="text" placeholder="Enter bank account number" th:field="*{bankAcc}" name="bankAcc" required />
+          </div>
+          <div class="form-group" th:if="${enabledFields.contains('ifscCode')}">
+            <label>IFSC Code<span class="required-star">*</span></label>
+            <input type="text" name="ifscCode" placeholder="Enter bank's IFSC code" required />
+          </div>
+          <div class="form-group" th:if="${enabledFields.contains('panCard')}">
+            <label>PAN Card Number</label>
+            <input type="text" name="panCard" placeholder="Enter PAN card number" />
+          </div>
+
+          <div class="form-group" th:if="${enabledFields.contains('mobileNumber')}">
+            <label>Mobile Number<span class="required-star">*</span></label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="text" id="mobileNumber" th:field="*{mobileNumber}" name="mobileNumber" placeholder="Enter mobile number" pattern="\d{10}$" maxlength="10"
+                minlength="10" required title="Mobile Number must be 10 digits exactly" style="flex: 1;" />
+              <button type="button" id="sendOtpBtn" onclick="sendOtp()" class="submit-button"
+                style="width: auto; padding: 0.6rem 1rem; font-size: 0.9rem; margin-top:0;">Send OTP</button>
+            </div>
+          </div>
+
+          <div id="demoOtpCard" class="demo-otp-card">
+            <span class="demo-otp-label">Demo OTP Received</span>
+            <span id="demoOtpValue" class="demo-otp-value">- - - - - -</span>
+          </div>
+
+          <div class="form-group" id="otpSection" style="display: none;">
+            <label>Enter OTP</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="text" id="otpInput" placeholder="Enter 6-digit OTP" maxlength="6" style="flex: 1;" />
+              <button type="button" id="verifyOtpBtn" onclick="verifyOtp()" class="submit-button"
+                style="width: auto; padding: 0.6rem 1rem; font-size: 0.9rem; background-color: #059669; margin-top:0;">Verify</button>
+            </div>
+            <span id="otpMessage" style="font-size: 0.85rem; margin-top: 5px; display: block;"></span>
+          </div>
+
+          <!-- Dynamic Fields -->
+          <div class="form-group" th:each="config : ${formConfigs}">
+            <label>
+              <span th:text="${config.fieldLabel}">Label</span>
+              <span class="required-star">*</span>
+            </label>
+            <input th:if="${config.fieldType == 'text'}" type="text" th:name="${config.fieldName}"
+              th:placeholder="'Enter ' + ${config.fieldLabel}" required />
+            <input th:if="${config.fieldType == 'number'}" type="number" th:name="${config.fieldName}"
+              th:placeholder="'Enter ' + ${config.fieldLabel}" required />
+            <input th:if="${config.fieldType == 'date'}" type="date" th:name="${config.fieldName}" required />
+          </div>
+
+          <div class="checkbox-row">
+            <p>I confirm the availability of consent<span class="required-star">*</span></p>
+            <input type="checkbox" required />
+          </div>
+
+          <!-- Upload Consent Document -->
+          <div class="form-group">
+            <div class="upload-wrapper">
+              <svg class="cloud-icon" viewBox="0 0 24 24">
+                <path
+                  d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+              </svg>
+              <label for="consentDoc" class="custom-file-label">Upload Consent Document</label>
+              <label><span class="required-star">*</span></label>
+              <input type="file" id="consentDoc" name="consentDoc" class="custom-file-input" required />
+              <span id="consentFileName" class="file-name"></span>
+            </div>
+          </div>
+
+          <div class="checkbox-row">
+            <p>I authorize auto-debit for premium payment<span class="required-star">*</span></p>
+            <input type="checkbox" required />
+          </div>
+
+          <!-- Upload Auto-Debit Consent -->
+          <div class="form-group">
+            <div class="upload-wrapper">
+              <svg class="cloud-icon" viewBox="0 0 24 24">
+                <path
+                  d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
+              </svg>
+              <label for="autoDebitDoc" class="custom-file-label">Upload Auto-Debit Consent</label>
+              <label><span class="required-star">*</span></label>
+              <input type="file" id="autoDebitDoc" name="autoDebitDoc" class="custom-file-input" required />
+              <span id="autoDebitFileName" class="file-name"></span>
+            </div>
+          </div>
+
+          <!-- New Document Uploads -->
+          <div class="form-group">
+            <label>Aadhaar Card Copy</label>
+            <div class="upload-wrapper">
+              <svg class="cloud-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+              <label for="aadharDoc" class="custom-file-label">Upload Aadhaar Card</label>
+              <input type="file" id="aadharDoc" name="aadharDoc" class="custom-file-input" />
+              <span id="aadharFileName" class="file-name"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>PAN Card Copy</label>
+            <div class="upload-wrapper">
+              <svg class="cloud-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+              <label for="panDoc" class="custom-file-label">Upload PAN Card</label>
+              <input type="file" id="panDoc" name="panDoc" class="custom-file-input" />
+              <span id="panFileName" class="file-name"></span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Cancelled Cheque</label>
+            <div class="upload-wrapper">
+              <svg class="cloud-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+              <label for="cancelledChequeDoc" class="custom-file-label">Upload Cancelled Cheque</label>
+              <input type="file" id="cancelledChequeDoc" name="cancelledChequeDoc" class="custom-file-input" />
+              <span id="cancelledChequeFileName" class="file-name"></span>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-button">Submit Registration</button>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <!-- Custom Modal HTML -->
+  <div id="customModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-title">Notification</div>
+      <div id="modalMessage" class="modal-message"></div>
+      <button onclick="closeModal()" class="modal-btn">Got it</button>
+    </div>
+  </div>
+
+  <script th:inline="javascript">
+    /*<![CDATA[*/
+    let success = /*[[${success}]]*/ false;
+    if (success) {
+      showCustomAlert("Information submitted successfully!");
+    }
+    /*]]>*/
+
+    function showCustomAlert(message) {
+      const modal = document.getElementById('customModal');
+      const msgElem = document.getElementById('modalMessage');
+      if (modal && msgElem) {
+        msgElem.textContent = message;
+        modal.classList.add('active');
+      } else {
+        alert(message);
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('customModal').classList.remove('active');
+    }
+
+    // Global Sidebar Toggle Logic (Delegated)
+    document.addEventListener('click', (e) => {
+      const toggle = e.target.closest('#sidebarToggle');
+      if (toggle) {
+        console.log("Global PMJJBY Sidebar Toggle Clicked");
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+          sidebar.classList.toggle('collapsed');
+          console.log("PMJJBY Sidebar toggled. Collapsed:", sidebar.classList.contains('collapsed'));
+        }
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log("PMJJBY Registration Context Initialized");
+    });
+
+    function showFileName(inputId, labelId) {
+      const input = document.getElementById(inputId);
+      const label = document.getElementById(labelId);
+      input.addEventListener('change', () => {
+        const span = document.getElementById(inputId === 'consentDoc' ? 'consentFileName' : 'autoDebitFileName');
+        span.textContent = input.files.length > 0 ? input.files[0].name : "";
+      });
+    }
+
+    // Keep logic simple, bind span directly
+    const consentInput = document.getElementById('consentDoc');
+    const consentSpan = document.getElementById('consentFileName');
+    consentInput.addEventListener('change', () => {
+      consentSpan.textContent = consentInput.files.length > 0 ? consentInput.files[0].name : "";
+    });
+
+    const autoDebitInput = document.getElementById('autoDebitDoc');
+    const autoDebitSpan = document.getElementById('autoDebitFileName');
+    autoDebitInput.addEventListener('change', () => {
+      autoDebitSpan.textContent = autoDebitInput.files.length > 0 ? autoDebitInput.files[0].name : "";
+    });
+
+    function setupFileDisplay(inputId, spanId) {
+      const input = document.getElementById(inputId);
+      const span = document.getElementById(spanId);
+      if (input && span) {
+        input.addEventListener('change', () => {
+          span.textContent = input.files.length > 0 ? input.files[0].name : "";
+        });
+      }
+    }
+    setupFileDisplay('aadharDoc', 'aadharFileName');
+    setupFileDisplay('panDoc', 'panFileName');
+    setupFileDisplay('cancelledChequeDoc', 'cancelledChequeFileName');
+
+
+    // Aadhaar verification logic removed as per user request
+
+    // OTP Logic
+    let isOtpVerified = false;
+
+    function sendOtp() {
+      const mobileNumber = document.getElementById('mobileNumber').value;
+      if (!/^\d{10}$/.test(mobileNumber)) {
+        showCustomAlert("Please enter a valid 10-digit mobile number first.");
+        return;
+      }
+
+      const sendBtn = document.getElementById('sendOtpBtn');
+      sendBtn.disabled = true;
+      sendBtn.textContent = "Sending...";
+
+      const csrfTokenInput = document.querySelector('input[name="_csrf"]');
+      const csrfToken = csrfTokenInput ? csrfTokenInput.value : '';
+
+      fetch('/api/otp/send?phoneNumber=' + mobileNumber, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': csrfToken
+        }
+      })
+        .then(response => {
+          if (!response.ok) throw new Error("Network response was not ok");
+          return response.json();
+        })
+        .then(data => {
+          document.getElementById('otpSection').style.display = 'block';
+          const demoCard = document.getElementById('demoOtpCard');
+          const demoValue = document.getElementById('demoOtpValue');
+          
+          if (demoCard && demoValue) {
+            demoCard.style.display = 'block';
+            demoValue.textContent = data.otp;
+          }
+          
+          sendBtn.textContent = "Resend OTP";
+          sendBtn.disabled = false;
+          console.log("Demo OTP:", data.otp);
+        })
+        .catch(err => {
+          console.error(err);
+          showCustomAlert("Failed to send OTP");
+          sendBtn.textContent = "Send OTP";
+          sendBtn.disabled = false;
+        });
+    }
+
+    function verifyOtp() {
+      const mobileNumber = document.getElementById('mobileNumber').value;
+      const otp = document.getElementById('otpInput').value;
+      const messageSpan = document.getElementById('otpMessage');
+
+      const csrfTokenInput = document.querySelector('input[name="_csrf"]');
+      const csrfToken = csrfTokenInput ? csrfTokenInput.value : '';
+
+      fetch('/api/otp/verify?phoneNumber=' + mobileNumber + '&otp=' + otp, {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': csrfToken
+        }
+      })
+        .then(response => {
+          if (!response.ok) throw new Error("Network response was not ok");
+          return response.json();
+        })
+        .then(data => {
+          if (data.success) {
+            isOtpVerified = true;
+            showCustomAlert("✅ OTP Verified Successfully!");
+            messageSpan.textContent = "✅ OTP Verified Successfully!";
+            messageSpan.style.color = "green";
+            document.getElementById('verifyOtpBtn').disabled = true;
+            document.getElementById('otpInput').disabled = true;
+            document.getElementById('mobileNumber').readOnly = true;
+            document.getElementById('sendOtpBtn').style.display = 'none';
+            document.getElementById('demoOtpCard').style.opacity = '0.5';
+          } else {
+            showCustomAlert("❌ Invalid OTP. Please try again.");
+            messageSpan.textContent = "❌ Invalid OTP. Please try again.";
+            messageSpan.style.color = "red";
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          showCustomAlert("❌ Verification failed.");
+          messageSpan.textContent = "❌ verification failed.";
+          messageSpan.style.color = "red";
+        });
+    }
+
+    // Prevent submission if OTP not verified or mandatory fields missing
+    document.getElementById('PMJJBYForm').addEventListener('submit', function (e) {
+      if (!this.checkValidity()) {
+        e.preventDefault();
+        showCustomAlert("Please fill all mandatory fields marked with a red star (*).");
+        return;
+      }
+      
+      if (!isOtpVerified) {
+        e.preventDefault();
+        showCustomAlert("Please verify your mobile number with OTP before submitting.");
+        document.getElementById('mobileNumber').focus();
+      }
+    });
+  </script>
+</body>
+
+</html>

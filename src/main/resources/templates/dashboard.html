@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <title>User Dashboard</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Public+Sans:wght@400;500;700;900"
+    rel="stylesheet" />
+  <style>
+    :root {
+      --primary-indigo: #1e1b4b; /* Deeper Indigo */
+      --accent-gold: #94a3b8;    /* Muted Slate */
+      --deep-bg: #0f172a;
+      --sidebar-bg: #ffffff;
+      --content-bg: #f8fafc;
+      --text-main: #1e293b;
+      --text-muted: #64748b;
+      --white: #ffffff;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Public Sans', sans-serif;
+      background-color: var(--content-bg);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: var(--text-main);
+    }
+
+    .admin-header {
+      background: #1e1b4b;
+      color: white;
+      padding: 0.5rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      height: 56px;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 1000;
+    }
+
+    .header-left {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .brand-logo-img {
+      height: 32px;
+      width: auto;
+      filter: brightness(0) invert(1);
+    }
+
+    .brand-text {
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+
+    .main-wrapper {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* Sidebar Styles */
+    .sidebar {
+      width: 280px;
+      flex-shrink: 0;
+      min-width: 280px;
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid #e2e8f0;
+      display: flex !important;
+      flex-direction: column;
+      padding: 1.5rem 0;
+      overflow-y: auto;
+      transition: all 0.3s ease;
+    }
+
+    .sidebar-item {
+      padding: 0.875rem 1.75rem;
+      cursor: pointer;
+      color: var(--text-muted);
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      margin: 4px 12px;
+      border-radius: 12px;
+    }
+
+    .sidebar-item:hover {
+      background-color: #f1f5f9;
+      color: var(--primary-indigo);
+    }
+
+    .sidebar-item.active {
+      background-color: #eef2ff;
+      color: var(--primary-indigo);
+      box-shadow: inset 0 0 0 1px rgba(26, 35, 126, 0.1);
+    }
+
+    /* Content Area Styles */
+    .content-area {
+      flex: 1;
+      padding: 2.5rem;
+      overflow-y: auto;
+      background: radial-gradient(circle at top right, #f8fafc, #f1f5f9);
+    }
+
+    .section-card {
+      background: var(--white);
+      padding: 2rem;
+      border-radius: 20px;
+      box-shadow: var(--shadow-md);
+      margin-bottom: 2.5rem;
+      border: 1px solid #f1f5f9;
+    }
+
+    .section-title {
+      color: var(--primary-indigo);
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-top: 0;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e2e8f0;
+    }
+
+    .sidebar.collapsed {
+      width: 0;
+      padding: 0;
+      margin: 0;
+      opacity: 0;
+      overflow: hidden;
+    }
+
+    .btn {
+      padding: 0.625rem 1.25rem;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+
+    .btn-danger {
+      background-color: #ef4444;
+      color: white;
+    }
+
+    .btn-danger:hover {
+      background-color: #dc2626;
+      transform: translateY(-1px);
+    }
+
+    /* Table Styles */
+    table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0 8px;
+      margin-top: 1rem;
+    }
+
+    th {
+      text-align: left;
+      padding: 1rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      font-size: 0.75rem;
+      letter-spacing: 0.05em;
+    }
+
+    td {
+      padding: 1.25rem 1rem;
+      background: #fff;
+      border-top: 1px solid #f1f5f9;
+      border-bottom: 1px solid #f1f5f9;
+    }
+
+    td:first-child {
+      border-left: 1px solid #f1f5f9;
+      border-radius: 12px 0 0 12px;
+    }
+
+    td:last-child {
+      border-right: 1px solid #f1f5f9;
+      border-radius: 0 12px 12px 0;
+    }
+
+    .status-btn {
+      padding: 6px 14px;
+      border-radius: 10px;
+      border: none;
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .status-approved {
+      background-color: #dcfce7;
+      color: #15803d;
+    }
+
+    .status-pending {
+      background-color: #fef9c3;
+      color: #a16207;
+    }
+
+    .status-rejected {
+      background-color: #fee2e2;
+      color: #b91c1c;
+    }
+
+    .status-investigate {
+      background-color: #fef3c7;
+      color: #92400e;
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .badge-compliant {
+      background-color: #f0fdf4;
+      color: #16a34a;
+      border: 1px solid #bbfc7a66;
+    }
+
+    .badge-non-compliant {
+      background-color: #fef2f2;
+      color: #dc2626;
+      border: 1px solid #fecaca66;
+    }
+
+    .text-green { color: #16a34a; font-weight: 700; }
+    .text-red { color: #dc2626; font-weight: 700; }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      border-right: 1px solid #cbd5e1;
+      padding-right: 1.5rem;
+      margin-right: 0.5rem;
+    }
+
+    .tab {
+      padding: 0.625rem 1.5rem;
+      border-radius: 10px;
+      text-decoration: none;
+      color: var(--text-muted);
+      font-weight: 700;
+      font-size: 0.875rem;
+      transition: all 0.2s;
+    }
+
+    .tab.active {
+      background: var(--white);
+      color: var(--primary-indigo);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* Date Filter Styles */
+    .filters-wrapper {
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      gap: 1.5rem;
+      margin-bottom: 2.5rem;
+      flex-wrap: wrap;
+      background: #e2e8f0;
+      padding: 6px;
+      border-radius: 16px;
+      width: fit-content;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      border-right: 1px solid #cbd5e1;
+      padding-right: 1.5rem;
+      margin-right: 0.5rem;
+    }
+
+    .date-filters {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .filter-label {
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .filter-select {
+      padding: 0.5rem 1rem;
+      border-radius: 10px;
+      border: none;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.875rem;
+      font-weight: 700;
+      cursor: pointer;
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .filter-select:hover {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .filter-select:focus {
+      background: var(--white);
+      color: var(--primary-indigo);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .alert-success {
+      padding: 1rem 1.5rem;
+      margin-bottom: 1.5rem;
+      border-radius: 12px;
+      background-color: #dcfce7;
+      color: #15803d;
+      border: 1px solid #bbf7d0;
+      font-weight: 600;
+    }
+  </style>
+  <script>
+    (function () {
+      if (!window.allowBackNavigation) {
+        history.pushState(null, '', location.href);
+        window.addEventListener('popstate', function () {
+          history.pushState(null, '', location.href);
+        });
+      }
+    })();
+  </script>
+</head>
+
+<body>
+
+  <header class="admin-header">
+    <div class="header-left">
+      <button id="sidebarToggle" class="btn"
+        style="background: rgba(255,255,255,0.1); color: white; font-size: 1.25rem; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.2);">
+        ☰
+      </button>
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <img src="/images/logo.png" alt="Logo" class="brand-logo-img">
+        <span class="brand-text">Vartaalap Banking</span>
+      </div>
+    </div>
+    <div class="user-info" style="display: flex; align-items: center; gap: 20px;">
+      <div style="text-align: right;">
+        <div style="font-size: 0.75rem; color: rgba(255,255,255,0.7); font-weight: 600; text-transform: uppercase;">Authenticated Session</div>
+        <span th:text="${branchName}" style="font-weight: 700;">Branch Name</span>
+      </div>
+      <form th:action="@{/logout}" method="post" style="display: inline;">
+        <button type="submit" class="btn btn-danger">Sign Out</button>
+      </form>
+    </div>
+  </header>
+
+  <div class="main-wrapper">
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+      <a href="/dashboard" class="sidebar-item active">
+        <span>Dashboard Home</span>
+      </a>
+      <a href="/apy" class="sidebar-item">
+        <span>Atal Pension Yojna</span>
+      </a>
+      <a href="/pmjjby" class="sidebar-item">
+        <span>Jeevan Jyoti Bima Yojna (PMJJBY)</span>
+      </a>
+      <a href="/pmsby" class="sidebar-item">
+        <span>Suraksha Bima Yojna (PMSBY)</span>
+      </a>
+      <a href="/kvp" class="sidebar-item">
+        <span>Kisan Vikas Patra (KVP)</span>
+      </a>
+      <a href="/pmmy" class="sidebar-item">
+        <span>Mudra Yojana (PMMY)</span>
+      </a>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="content-area">
+
+      <div th:if="${success}" class="alert-success">
+        Information submitted successfully!
+      </div>
+
+      <div class="filters-wrapper">
+        <div class="tabs">
+          <a th:href="@{'/dashboard'(status='All')}" class="tab"
+            th:classappend="${selectedStatus}=='All' ? 'active' : ''">All</a>
+          <a th:href="@{'/dashboard'(status='Pending')}" class="tab"
+            th:classappend="${selectedStatus}=='Pending' ? 'active' : ''">Pending</a>
+          <a th:href="@{'/dashboard'(status='Approved')}" class="tab"
+            th:classappend="${selectedStatus}=='Approved' ? 'active' : ''">Approved</a>
+          <a th:href="@{'/dashboard'(status='Rejected')}" class="tab"
+            th:classappend="${selectedStatus}=='Rejected' ? 'active' : ''">Rejected</a>
+          <a th:href="@{'/dashboard'(status='Investigate')}" class="tab"
+            th:classappend="${selectedStatus}=='Investigate' ? 'active' : ''">Investigate</a>
+        </div>
+
+        <div class="date-filters">
+          <span class="filter-label" style="margin-left: 0.5rem;">Month</span>
+          <select id="monthFilter" class="filter-select">
+            <option value="All">All Months</option>
+            <option value="01">January</option>
+            <option value="02">February</option>
+            <option value="03">March</option>
+            <option value="04">April</option>
+            <option value="05">May</option>
+            <option value="06">June</option>
+            <option value="07">July</option>
+            <option value="08">August</option>
+            <option value="09">September</option>
+            <option value="10">October</option>
+            <option value="11">November</option>
+            <option value="12">December</option>
+          </select>
+
+          <span class="filter-label">Year:</span>
+          <select id="yearFilter" class="filter-select">
+            <option value="All">All Years</option>
+            <option value="2024">2024</option>
+            <option value="2025">2025</option>
+            <option value="2026">2026</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- APY Section -->
+      <div class="section-card">
+        <h2 class="section-title">Atal Pension Yojana (APY)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Name</th>
+              <th>Pension Tier</th>
+              <th>Contribution Amount</th>
+              <th>Status</th>
+              <th>Compliance</th>
+              <th>Submitted On</th>
+              <th>Approver Remark</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="txn, iterStat : ${apyTransactions}">
+              <td th:text="'REQ00' + ${iterStat.count}"></td>
+              <td th:text="${txn.fullName}"></td>
+              <td th:text="'₹' + ${txn.pensionTier}"></td>
+              <td th:text="'₹' + ${txn.contriAmount}"></td>
+              <td><button class="status-btn"
+                  th:classappend="${txn.status == 'Approved' ? 'status-approved' : (txn.status == 'Pending' ? 'status-pending' : (txn.status == 'Rejected' ? 'status-rejected' : (txn.status == 'Investigate' ? 'status-investigate' : '')))}"
+                  th:text="${txn.status}"></button></td>
+              <td>
+                <span class="badge" th:classappend="${txn.complianceStatus == 'Compliant' ? 'badge-compliant' : 'badge-non-compliant'}" th:text="${txn.complianceStatus}"></span>
+              </td>
+              <td th:text="${txn.submissionDate}"></td>
+              <td th:text="${txn.approverRemark}"></td>
+            </tr>
+            <tr th:if="${apyTransactions == null or apyTransactions.isEmpty()}">
+              <td colspan="8" style="text-align:center;">No APY transactions found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PMJJBY Section -->
+      <div class="section-card">
+        <h2 class="section-title">Jeevan Jyoti Bima Yojna (PMJJBY)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Name</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Compliance</th>
+              <th>Submitted On</th>
+              <th>Approver Remark</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="txn, iterStat : ${pmjjbyTransactions}">
+              <td th:text="'REQ10' + ${iterStat.count}"></td>
+              <td th:text="${txn.fullName}"></td>
+              <td th:text="'₹' + ${txn.amount}"></td>
+              <td><button class="status-btn"
+                  th:classappend="${txn.status == 'Approved' ? 'status-approved' : (txn.status == 'Pending' ? 'status-pending' : (txn.status == 'Rejected' ? 'status-rejected' : (txn.status == 'Investigate' ? 'status-investigate' : '')))}"
+                  th:text="${txn.status}"></button></td>
+              <td>
+                <span class="badge" th:classappend="${txn.complianceStatus == 'Compliant' ? 'badge-compliant' : 'badge-non-compliant'}" th:text="${txn.complianceStatus}"></span>
+              </td>
+              <td th:text="${txn.submissionDate}"></td>
+              <td th:text="${txn.approverRemark}"></td>
+            </tr>
+            <tr th:if="${pmjjbyTransactions == null or pmjjbyTransactions.isEmpty()}">
+              <td colspan="8" style="text-align:center;">No PMJJBY transactions found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PMSBY Section -->
+      <div class="section-card">
+        <h2 class="section-title">Suraksha Bima Yojna (PMSBY)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Name</th>
+              <th>Amount</th>
+              <th>Status</th>
+              <th>Compliance</th>
+              <th>Submitted On</th>
+              <th>Approver Remark</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="txn, iterStat : ${pmsbyTransactions}">
+              <td th:text="'REQ20' + ${iterStat.count}"></td>
+              <td th:text="${txn.fullName}"></td>
+              <td th:text="'₹' + ${txn.amount}"></td>
+              <td><button class="status-btn"
+                  th:classappend="${txn.status == 'Approved' ? 'status-approved' : (txn.status == 'Pending' ? 'status-pending' : (txn.status == 'Rejected' ? 'status-rejected' : (txn.status == 'Investigate' ? 'status-investigate' : '')))}"
+                  th:text="${txn.status}"></button></td>
+              <td>
+                <span class="badge" th:classappend="${txn.complianceStatus == 'Compliant' ? 'badge-compliant' : 'badge-non-compliant'}" th:text="${txn.complianceStatus}"></span>
+              </td>
+              <td th:text="${txn.submissionDate}"></td>
+              <td th:text="${txn.approverRemark}"></td>
+            </tr>
+            <tr th:if="${pmsbyTransactions == null or pmsbyTransactions.isEmpty()}">
+              <td colspan="8" style="text-align:center;">No PMSBY transactions found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- KVP Section -->
+      <div class="section-card">
+        <h2 class="section-title">Kisan Vikas Patra (KVP)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Name</th>
+              <th>Deposit Amount</th>
+              <th>Status</th>
+              <th>Compliance</th>
+              <th>Submitted On</th>
+              <th>Approver Remark</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="txn, iterStat : ${kvpTransactions}">
+              <td th:text="'REQ30' + ${iterStat.count}"></td>
+              <td th:text="${txn.fullName}"></td>
+              <td th:text="'₹' + ${txn.depositAmount}"></td>
+              <td><button class="status-btn"
+                  th:classappend="${txn.status == 'Approved' ? 'status-approved' : (txn.status == 'Pending' ? 'status-pending' : (txn.status == 'Rejected' ? 'status-rejected' : (txn.status == 'Investigate' ? 'status-investigate' : '')))}"
+                  th:text="${txn.status}"></button></td>
+              <td>
+                <span class="badge" th:classappend="${txn.complianceStatus == 'Compliant' ? 'badge-compliant' : 'badge-non-compliant'}" th:text="${txn.complianceStatus}"></span>
+              </td>
+              <td th:text="${txn.submissionDate}"></td>
+              <td th:text="${txn.approverRemark}"></td>
+            </tr>
+            <tr th:if="${kvpTransactions == null or kvpTransactions.isEmpty()}">
+              <td colspan="8" style="text-align:center;">No KVP transactions found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- PMMY Section -->
+      <div class="section-card">
+        <h2 class="section-title">Mudra Yojana (PMMY)</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Request ID</th>
+              <th>Name</th>
+              <th>Loan Amount</th>
+              <th>Category</th>
+              <th>Status</th>
+              <th>Compliance</th>
+              <th>Submitted On</th>
+              <th>Approver Remark</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr th:each="txn, iterStat : ${pmmyTransactions}">
+              <td th:text="'REQ40' + ${iterStat.count}"></td>
+              <td th:text="${txn.fullName}"></td>
+              <td th:text="'₹' + ${txn.loanAmount}"></td>
+              <td th:text="${txn.businessType}"></td>
+              <td><button class="status-btn"
+                  th:classappend="${txn.status == 'Approved' ? 'status-approved' : (txn.status == 'Pending' ? 'status-pending' : (txn.status == 'Rejected' ? 'status-rejected' : (txn.status == 'Investigate' ? 'status-investigate' : '')))}"
+                  th:text="${txn.status}"></button></td>
+              <td>
+                <span class="badge" th:classappend="${txn.complianceStatus == 'Compliant' ? 'badge-compliant' : 'badge-non-compliant'}" th:text="${txn.complianceStatus}"></span>
+              </td>
+              <td th:text="${txn.submissionDate}"></td>
+              <td th:text="${txn.approverRemark}"></td>
+            </tr>
+            <tr th:if="${pmmyTransactions == null or pmmyTransactions.isEmpty()}">
+              <td colspan="8" style="text-align:center;">No PMMY transactions found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+    </main>
+  </div>
+
+  <script>
+    // Global Sidebar Toggle Logic (Delegated)
+    document.addEventListener('click', (e) => {
+      const toggle = e.target.closest('#sidebarToggle');
+      if (toggle) {
+        console.log("Global User Dashboard Sidebar Toggle Clicked");
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+          sidebar.classList.toggle('collapsed');
+          console.log("User Sidebar toggled. Collapsed:", sidebar.classList.contains('collapsed'));
+        }
+      }
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log("User Dashboard Context Initialized");
+      
+      const monthFilter = document.getElementById('monthFilter');
+      const yearFilter = document.getElementById('yearFilter');
+
+      if (monthFilter && yearFilter) {
+        const applyFilters = () => {
+          const selectedMonth = monthFilter.value;
+          const selectedYear = yearFilter.value;
+          
+          const tables = document.querySelectorAll('.section-card table');
+          tables.forEach(table => {
+            const headers = Array.from(table.querySelectorAll('thead th'));
+            let dateColIdx = -1;
+            headers.forEach((th, idx) => {
+              const txt = th.textContent.toLowerCase();
+              if (txt.includes('submitted') || txt.includes('date')) dateColIdx = idx;
+            });
+            
+            if (dateColIdx === -1) return;
+
+            const tbody = table.querySelector('tbody');
+            if (!tbody) return;
+            
+            const rows = Array.from(tbody.querySelectorAll('tr'));
+            let visibleDataCount = 0;
+            const sectionTitle = table.closest('.section-card')?.querySelector('.section-title')?.textContent || 'Scheme';
+
+            rows.forEach(row => {
+              const cells = row.querySelectorAll('td');
+              
+              // Identify empty/message rows
+              if (cells.length === 1 && cells[0].hasAttribute('colspan')) {
+                row.classList.add('empty-state-msg-row');
+                row.style.display = 'none';
+                return;
+              }
+
+              const dateCell = cells[dateColIdx];
+              if (!dateCell) return;
+
+              const dateStr = dateCell.textContent.trim();
+              // Lenient regex for YYYY-MM-DD
+              const dateMatch = dateStr.match(/(\d{4})-(\d{2})-(\d{2})/);
+              
+              if (dateMatch) {
+                const rowYear = dateMatch[1];
+                const rowMonth = dateMatch[2];
+
+                const matchesMonth = (selectedMonth === 'All' || rowMonth === selectedMonth);
+                const matchesYear = (selectedYear === 'All' || rowYear === selectedYear);
+
+                if (matchesMonth && matchesYear) {
+                  row.style.display = '';
+                  visibleDataCount++;
+                } else {
+                  row.style.display = 'none';
+                }
+              } else {
+                // Keep visible if format unknown
+                row.style.display = '';
+                visibleDataCount++;
+              }
+            });
+
+            // Handle the "No records" row
+            let msgRow = tbody.querySelector('.empty-state-msg-row');
+            if (visibleDataCount === 0) {
+              if (!msgRow) {
+                msgRow = document.createElement('tr');
+                msgRow.classList.add('empty-state-msg-row');
+                const td = document.createElement('td');
+                td.setAttribute('colspan', headers.length);
+                td.style.textAlign = 'center';
+                td.style.padding = '30px';
+                td.style.color = '#64748b';
+                msgRow.appendChild(td);
+                tbody.appendChild(msgRow);
+              }
+              const displayTitle = sectionTitle.replace(/\(.*\)/, '').trim();
+              msgRow.querySelector('td').textContent = `No ${displayTitle} registrations found for the selected period.`;
+              msgRow.style.display = '';
+            } else if (msgRow) {
+              msgRow.style.display = 'none';
+            }
+          });
+        };
+
+        monthFilter.addEventListener('change', applyFilters);
+        yearFilter.addEventListener('change', applyFilters);
+      }
+    });
+  </script>
+</body>
+
+</html>

@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+  <title>Vartaalap Banking</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Public+Sans:wght@400;500;700;900"
+    rel="stylesheet" />
+  <script>
+    (function () {
+      if (!window.allowBackNavigation) {
+        // Force initial state to prevent back
+        history.pushState(null, '', location.href);
+        window.addEventListener('popstate', function () {
+          history.pushState(null, '', location.href);
+        });
+
+        // Disable back via keyboard (Alt+← or Backspace on some browsers)
+        window.addEventListener('keydown', function (e) {
+          if ((e.altKey && e.key === 'ArrowLeft')) {
+            e.preventDefault();
+          }
+        });
+      }
+    })();
+  </script>
+
+  <link rel="stylesheet" href="/css/login.css" />
+</head>
+
+<body>
+  <div class="app-container">
+    <div class="card">
+      <div class="logo-section">
+        <img src="/images/logo.png" alt="Vartaalap Logo" class="logo-img" />
+        <h1 class="brand-name">VARTAALAP</h1>
+        <div class="brand-tagline">Premium Digital Banking</div>
+      </div>
+
+      <div th:if="${param.error}" class="alert-danger">
+        Invalid Employee ID or Password. Please try again.
+      </div>
+
+      <h2 class="form-title">Secure Portal Access</h2>
+      
+      <form th:action="@{/login}" method="post">
+        <div class="form-group">
+          <label for="employee-code">Employee ID</label>
+          <input type="text" id="employee-code" name="username" placeholder="Enter your ID" required />
+        </div>
+        
+        <div class="form-group">
+          <label for="password">Security Password</label>
+          <div style="position: relative; display: flex; align-items: center;">
+            <input type="password" id="password" name="password" placeholder="••••••••" required />
+            <button type="button" id="toggle-password"
+              onclick="togglePasswordVisibility('password', 'eye-icon-login')"
+              style="position: absolute; right: 1rem; background: none; border: none; cursor: pointer; color: #64748b; padding: 0; display: flex; align-items: center;">
+              <svg id="eye-icon-login" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="form-action">
+          <button type="submit">Establish Secure Session</button>
+        </div>
+      </form>
+
+      <a th:href="@{/forgot-password}" class="forgot-password">Restricted Access? Recover Password</a>
+    </div>
+  </div>
+
+  <script>
+    function togglePasswordVisibility(inputId, iconId) {
+      var input = document.getElementById(inputId);
+      var icon = document.getElementById(iconId);
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.innerHTML = `
+          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+          <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+          <line x1="1" y1="1" x2="23" y2="23"/>`;
+      } else {
+        input.type = 'password';
+        icon.innerHTML = `
+          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+          <circle cx="12" cy="12" r="3"/>`;
+      }
+    }
+  </script>
+</body>
+
+</html>

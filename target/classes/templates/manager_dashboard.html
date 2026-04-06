@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <title>Manager Dashboard</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Public+Sans:wght@400;500;700;900"
+        rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-indigo: #1e1b4b; /* Deeper Indigo */
+            --accent-gold: #94a3b8;    /* Muted Slate */
+            --sidebar-bg: #ffffff;
+            --content-bg: #f8fafc;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --white: #ffffff;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Public Sans', sans-serif;
+            background-color: var(--content-bg);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            color: var(--text-main);
+        }
+
+        .admin-header {
+            background: #1e1b4b;
+            color: white;
+            padding: 0.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            height: 56px;
+            flex-shrink: 0;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .brand-logo-img {
+            height: 32px;
+            width: auto;
+            filter: brightness(0) invert(1);
+        }
+
+        .brand-text {
+            font-size: 1.5rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .main-wrapper {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+        width: 280px;
+        flex-shrink: 0;
+        min-width: 280px;
+        background-color: var(--sidebar-bg);
+        border-right: 1px solid #e2e8f0;
+        display: flex !important;
+        flex-direction: column;
+        padding: 1.5rem 0;
+        overflow-y: auto;
+        transition: all 0.3s ease;
+    }
+
+        .sidebar-item {
+            padding: 0.875rem 1.75rem;
+            cursor: pointer;
+            color: var(--text-muted);
+            font-weight: 600;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            margin: 4px 12px;
+            border-radius: 12px;
+        }
+
+        .sidebar-item:hover {
+            background-color: #f1f5f9;
+            color: var(--primary-indigo);
+        }
+
+        .sidebar-item.active {
+            background-color: #eef2ff;
+            color: var(--primary-indigo);
+            box-shadow: inset 0 0 0 1px rgba(26, 35, 126, 0.1);
+        }
+
+        /* Content Area Styles */
+        .content-area {
+            flex: 1;
+            padding: 2.5rem;
+            overflow-y: auto;
+            background: radial-gradient(circle at top right, #f8fafc, #f1f5f9);
+        }
+
+        .section-card {
+            background: var(--white);
+            padding: 2.5rem;
+            border-radius: 24px;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 2.5rem;
+            border: 1px solid #f1f5f9;
+        }
+
+        .section-title {
+            color: var(--primary-indigo);
+            font-size: 1.5rem;
+            font-weight: 800;
+            margin-top: 0;
+            margin-bottom: 1.5rem;
+            letter-spacing: -0.01em;
+            border-bottom: 2px solid #f1f5f9;
+            padding-bottom: 1rem;
+        }
+
+        /* Tables */
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px;
+            margin-top: 1rem;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 1rem;
+        }
+
+        th {
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+
+        td {
+            background: #fff;
+            border-top: 1px solid #f1f5f9;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        td:first-child {
+            border-left: 1px solid #f1f5f9;
+            border-radius: 12px 0 0 12px;
+        }
+
+        td:last-child {
+            border-right: 1px solid #f1f5f9;
+            border-radius: 0 12px 12px 0;
+        }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.02em;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            height: 52px;
+            padding: 0 1rem;
+            border: 2px solid #f1f5f9;
+            border-radius: 12px;
+            font-size: 1rem;
+            background: #f8fafc;
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary-indigo);
+            background: white;
+            box-shadow: 0 0 0 4px rgba(26,35,126,0.05);
+        }
+
+        .btn-primary {
+            background: #1e1b4b;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-weight: 800;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(26, 35, 126, 0.2);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 8px 15px rgba(26, 35, 126, 0.3);
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Charts Container */
+        .charts-container {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .chart-card {
+            flex: 1;
+            min-width: 300px;
+            height: 350px;
+        }
+
+        .alert-success {
+            background-color: #dcfce7;
+            color: #166534;
+            padding: 1.25rem 1.5rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            font-weight: 600;
+            border: 1px solid #bbf7d0;
+        }
+    </style>
+
+</head>
+
+<body>
+
+    <header class="admin-header">
+        <div class="header-left">
+            <button id="sidebarToggle" class="btn-primary"
+                style="background: rgba(255,255,255,0.1); color: white; font-size: 1.25rem; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.2); margin-right: 15px;">
+                ☰
+            </button>
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <img src="/images/logo.png" alt="Logo" class="brand-logo-img">
+                <span class="brand-text">Vartaalap Banking</span>
+            </div>
+        </div>
+        <div class="user-info" style="display: flex; align-items: center; gap: 20px;">
+            <div style="text-align: right;">
+                <div style="font-size: 0.75rem; color: rgba(255,255,255,0.7); font-weight: 600; text-transform: uppercase;">Strategic Session</div>
+                <span th:text="${managerName}" style="font-weight: 700;">Regional Manager</span>
+            </div>
+            <form th:action="@{/logout}" method="post" style="display: inline;">
+                <button type="submit" class="btn-primary" style="background: #ef4444; box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);">Sign Out</button>
+            </form>
+        </div>
+    </header>
+
+
+    <div class="main-wrapper">
+        <aside class="sidebar">
+            <a href="#" class="sidebar-item active">Dashboard Overview</a>
+            <a href="#transfer-portal" class="sidebar-item">Transfer Portal</a>
+            <a href="#rank-table" class="sidebar-item">Branch Rankings</a>
+        </aside>
+
+        <main class="content-area">
+
+            <div th:if="${param.success}" class="alert-success">
+                Request submitted successfully!
+            </div>
+
+            <!-- Analytics Section -->
+            <div class="section-card">
+                <h2 class="section-title">Performance Analytics</h2>
+                <div class="charts-container">
+                    <div class="chart-card">
+                        <canvas id="schemePieChart"></canvas>
+                    </div>
+                    <div class="chart-card">
+                        <canvas id="performanceBarChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Branch Rankings -->
+            <div id="rank-table" class="section-card">
+                <h2 class="section-title">Branch Performance Rankings</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rank</th>
+                            <th>Branch Name</th>
+                            <th>APY</th>
+                            <th>PMJJBY</th>
+                            <th>PMSBY</th>
+                            <th>KVP</th>
+                            <th>PMMY</th>
+                            <th>Total Score</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr th:each="branch : ${rankings}">
+                            <td th:text="'#' + ${branch.rank}" style="font-weight: bold; color: #004d99;"></td>
+                            <td th:text="${branch.branchName}"></td>
+                            <td th:text="${branch.apyCount}"></td>
+                            <td th:text="${branch.pmjjbyCount}"></td>
+                            <td th:text="${branch.pmsbyCount}"></td>
+                            <td th:text="${branch.kvpCount}"></td>
+                            <td th:text="${branch.pmmyCount}"></td>
+                            <td th:text="${branch.totalScore}" style="font-weight: bold;"></td>
+                        </tr>
+                        <tr th:if="${rankings.isEmpty()}">
+                            <td colspan="6" style="text-align: center;">No data available for ranking.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Transfer Portal -->
+            <div id="transfer-portal" class="section-card">
+                <h2 class="section-title">Transfer Request Portal</h2>
+                <div style="display: flex; gap: 2rem;">
+                    <!-- Request Form -->
+                    <div style="flex: 1;">
+                        <h3>Initiate Transfer</h3>
+                        <form th:action="@{/manager/transfer-request}" method="post">
+                            <div class="form-group">
+                                <label>Target Region</label>
+                                <select name="targetRegion" required>
+                                    <option value="" disabled selected>Select Region</option>
+                                    <option value="North">North</option>
+                                    <option value="South">South</option>
+                                    <option value="East">East</option>
+                                    <option value="West">West</option>
+                                    <option value="Central">Central</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Target Branch</label>
+                                <input type="text" name="targetBranch" placeholder="Enter Branch Name" required />
+                            </div>
+                            <div class="form-group">
+                                <label>Replacement Employee (Name/ID)</label>
+                                <input type="text" name="replacementName" placeholder="Who will fill your vacancy?"
+                                    required />
+                            </div>
+                            <button type="submit" class="btn-primary">Send Request to Admin</button>
+                        </form>
+                    </div>
+
+                    <!-- My Requests Status -->
+                    <div style="flex: 1;">
+                        <h3>My Transfer Status</h3>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Target Branch</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr th:each="req : ${myRequests}">
+                                    <td th:text="${req.requestDate}"></td>
+                                    <td th:text="${req.targetBranch}"></td>
+                                    <td>
+                                        <span th:text="${req.status}"
+                                            th:style="${req.status == 'Approved' ? 'color: green; font-weight: bold;' : (req.status == 'Rejected' ? 'color: red; font-weight: bold;' : 'color: orange; font-weight: bold;')}">
+                                        </span>
+                                    </td>
+                                </tr>
+                                <tr th:if="${myRequests.isEmpty()}">
+                                    <td colspan="3">No transfer requests found.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script th:inline="javascript">
+        /*<![CDATA[*/
+        const totalApy = /*[[${totalApy}]]*/ 0;
+        const totalPmjjby = /*[[${totalPmjjby}]]*/ 0;
+        const totalPmsby = /*[[${totalPmsby}]]*/ 0;
+        const totalKvp = /*[[${totalKvp}]]*/ 0;
+        const totalPmmy = /*[[${totalPmmy}]]*/ 0;
+
+        // Global Sidebar Toggle Logic (Delegated)
+        document.addEventListener('click', (e) => {
+            const toggle = e.target.closest('#sidebarToggle');
+            if (toggle) {
+                console.log("Global Manager Dashboard Sidebar Toggle Clicked");
+                const sidebar = document.querySelector('.sidebar');
+                if (sidebar) {
+                    sidebar.classList.toggle('collapsed');
+                    console.log("Manager Sidebar toggled. Collapsed:", sidebar.classList.contains('collapsed'));
+                }
+            }
+        });
+
+        // Dashboard Charts
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log("Manager Dashboard Context Initialized");
+
+            const ctxPie = document.getElementById('schemePieChart').getContext('2d');
+            new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['APY', 'PMJJBY', 'PMSBY', 'KVP', 'PMMY'],
+                    datasets: [{
+                        data: [totalApy, totalPmjjby, totalPmsby, totalKvp, totalPmmy],
+                        backgroundColor: ['#1a237e', '#c5a059', '#283593', '#6f42c1', '#fd7e14'],
+                        borderWidth: 0,
+                        hoverOffset: 15
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom' }
+                    },
+                    cutout: '70%'
+                }
+            });
+
+            const ctxBar = document.getElementById('performanceBarChart').getContext('2d');
+            new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: ['APY', 'PMJJBY', 'PMSBY', 'KVP', 'PMMY'],
+                    datasets: [{
+                        label: 'Enrollments',
+                        data: [totalApy, totalPmjjby, totalPmsby, totalKvp, totalPmmy],
+                        backgroundColor: '#1a237e',
+                        borderRadius: 8,
+                        barThickness: 40
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: true, grid: { display: false } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+        });
+        /*]]>*/
+    </script>
+</body>
+
+</html>
