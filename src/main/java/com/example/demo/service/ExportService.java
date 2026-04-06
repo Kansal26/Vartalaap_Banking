@@ -31,39 +31,51 @@ public class ExportService {
     @Autowired
     private UserRepository userRepo;
 
-    public List<ApplicationExportDTO> getAllApplications() {
+    public List<String> getDistinctBranches() {
+        return userRepo.findAll().stream()
+                .map(User::getBranch)
+                .filter(b -> b != null && !b.isBlank())
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
+    public List<ApplicationExportDTO> getFilteredApplications(String scheme, String branch) {
         Map<String, String> userBranchMap = userRepo.findAll().stream()
                 .filter(u -> u.getUsername() != null)
                 .collect(Collectors.toMap(User::getUsername, u -> u.getBranch() != null ? u.getBranch() : "Unknown", (a, b) -> a));
 
-        List<ApplicationExportDTO> allApps = new ArrayList<>();
+        List<ApplicationExportDTO> results = new ArrayList<>();
+        boolean allSchemes = scheme == null || "All".equalsIgnoreCase(scheme) || scheme.isBlank();
 
-        // APY
-        apyRepo.findAll().forEach(f -> allApps.add(new ApplicationExportDTO(
-                "APY", f.getFullName(), userBranchMap.getOrDefault(f.getSubmittedBy(), "N/A"),
-                f.getStatus(), f.getApproverRemark(), f.getSubmissionDate())));
+        if (allSchemes || "APY".equalsIgnoreCase(scheme)) {
+            apyRepo.findAll().forEach(f -> addIfMatches(results, "APY", f.getFullName(), f.getSubmittedBy(), f.getStatus(), f.getApproverRemark(), f.getSubmissionDate(), branch, userBranchMap));
+        }
+        if (allSchemes || "PMJJBY".equalsIgnoreCase(scheme)) {
+            pmjjbyRepo.findAll().forEach(f -> addIfMatches(results, "PMJJBY", f.getFullName(), f.getSubmittedBy(), f.getStatus(), f.getApproverRemark(), f.getSubmissionDate(), branch, userBranchMap));
+        }
+        if (allSchemes || "PMSBY".equalsIgnoreCase(scheme)) {
+            pmsbyRepo.findAll().forEach(f -> addIfMatches(results, "PMSBY", f.getFullName(), f.getSubmittedBy(), f.getStatus(), f.getApproverRemark(), f.getSubmissionDate(), branch, userBranchMap));
+        }
+        if (allSchemes || "KVP".equalsIgnoreCase(scheme)) {
+            kvpRepo.findAll().forEach(f -> addIfMatches(results, "KVP", f.getFullName(), f.getSubmittedBy(), f.getStatus(), f.getApproverRemark(), f.getSubmissionDate(), branch, userBranchMap));
+        }
+        if (allSchemes || "PMMY".equalsIgnoreCase(scheme)) {
+            pmmyRepo.findAll().forEach(f -> addIfMatches(results, "PMMY", f.getFullName(), f.getSubmittedBy(), f.getStatus(), f.getApproverRemark(), f.getSubmissionDate(), branch, userBranchMap));
+        }
 
-        // PMJJBY
-        pmjjbyRepo.findAll().forEach(f -> allApps.add(new ApplicationExportDTO(
-                "PMJJBY", f.getFullName(), userBranchMap.getOrDefault(f.getSubmittedBy(), "N/A"),
-                f.getStatus(), f.getApproverRemark(), f.getSubmissionDate())));
+        return results;
+    }
 
-        // PMSBY
-        pmsbyRepo.findAll().forEach(f -> allApps.add(new ApplicationExportDTO(
-                "PMSBY", f.getFullName(), userBranchMap.getOrDefault(f.getSubmittedBy(), "N/A"),
-                f.getStatus(), f.getApproverRemark(), f.getSubmissionDate())));
+    private void addIfMatches(List<ApplicationExportDTO> results, String schemeName, String fullName, String submittedBy, String status, String remark, java.time.LocalDate date, String branchFilter, Map<String, String> userBranchMap) {
+        String branch = userBranchMap.getOrDefault(submittedBy, "Unknown");
+        if (branchFilter == null || "All".equalsIgnoreCase(branchFilter) || branchFilter.isBlank() || branch.equalsIgnoreCase(branchFilter)) {
+            results.add(new ApplicationExportDTO(schemeName, fullName, branch, status, remark, date));
+        }
+    }
 
-        // KVP
-        kvpRepo.findAll().forEach(f -> allApps.add(new ApplicationExportDTO(
-                "KVP", f.getFullName(), userBranchMap.getOrDefault(f.getSubmittedBy(), "N/A"),
-                f.getStatus(), f.getApproverRemark(), f.getSubmissionDate())));
-
-        // PMMY
-        pmmyRepo.findAll().forEach(f -> allApps.add(new ApplicationExportDTO(
-                "PMMY", f.getFullName(), userBranchMap.getOrDefault(f.getSubmittedBy(), "N/A"),
-                f.getStatus(), f.getApproverRemark(), f.getSubmissionDate())));
-
-        return allApps;
+    public List<ApplicationExportDTO> getAllApplications() {
+        return getFilteredApplications("All", "All");
     }
 
     public byte[] generateExcel(List<ApplicationExportDTO> apps) throws IOException {

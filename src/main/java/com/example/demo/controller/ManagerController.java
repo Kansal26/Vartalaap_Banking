@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.IOException;
 import java.security.Principal;
@@ -59,27 +60,42 @@ public class ManagerController {
 
         model.addAttribute("managerName", manager.getFullName());
 
+        // 4. Fetch Available Branches for Filters
+        model.addAttribute("branches", exportService.getDistinctBranches());
+
         return "manager_dashboard";
     }
 
     @GetMapping("/manager/export/excel")
-    public ResponseEntity<byte[]> exportExcel() throws IOException {
-        List<ApplicationExportDTO> apps = exportService.getAllApplications();
+    public ResponseEntity<byte[]> exportExcel(@RequestParam(required = false) String scheme,
+            @RequestParam(required = false) String branch) throws IOException {
+        List<ApplicationExportDTO> apps = exportService.getFilteredApplications(scheme, branch);
         byte[] data = exportService.generateExcel(apps);
 
+        String filename = "applications_report";
+        if (scheme != null && !"All".equalsIgnoreCase(scheme)) filename += "_" + scheme;
+        if (branch != null && !"All".equalsIgnoreCase(branch)) filename += "_" + branch.replace(" ", "_");
+        filename += ".xlsx";
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=applications_report.xlsx")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
                 .body(data);
     }
 
     @GetMapping("/manager/export/csv")
-    public ResponseEntity<byte[]> exportCsv() {
-        List<ApplicationExportDTO> apps = exportService.getAllApplications();
+    public ResponseEntity<byte[]> exportCsv(@RequestParam(required = false) String scheme,
+            @RequestParam(required = false) String branch) {
+        List<ApplicationExportDTO> apps = exportService.getFilteredApplications(scheme, branch);
         byte[] data = exportService.generateCsv(apps);
 
+        String filename = "applications_report";
+        if (scheme != null && !"All".equalsIgnoreCase(scheme)) filename += "_" + scheme;
+        if (branch != null && !"All".equalsIgnoreCase(branch)) filename += "_" + branch.replace(" ", "_");
+        filename += ".csv";
+
         return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=applications_report.csv")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=" + filename)
                 .contentType(MediaType.TEXT_PLAIN)
                 .body(data);
     }
