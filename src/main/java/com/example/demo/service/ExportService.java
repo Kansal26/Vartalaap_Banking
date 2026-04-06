@@ -33,6 +33,7 @@ public class ExportService {
 
     public List<String> getDistinctBranches() {
         return userRepo.findAll().stream()
+                .filter(u -> "USER".equalsIgnoreCase(u.getRole()))
                 .map(User::getBranch)
                 .filter(b -> b != null && !b.isBlank())
                 .distinct()
