@@ -31,6 +31,7 @@ com/example/demo/service/KvpService.class
 com/example/demo/config/WebConfig.class
 com/example/demo/controller/UidaiController.class
 com/example/demo/service/OtpService.class
+com/example/demo/config/AsyncConfig.class
 com/example/demo/service/OtpService$OtpData.class
 com/example/demo/service/AnalyticsService.class
 com/example/demo/service/ApyService.class

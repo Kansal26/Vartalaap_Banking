@@ -15,6 +15,7 @@ public class SystemNotification {
     private String recipient;
     private String subject;
     private String body;
+    private String status; // SENT, FAILED, PENDING
     private LocalDateTime sentAt;
 
     public Long getId() {
@@ -55,5 +56,13 @@ public class SystemNotification {
 
     public void setSentAt(LocalDateTime sentAt) {
         this.sentAt = sentAt;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }

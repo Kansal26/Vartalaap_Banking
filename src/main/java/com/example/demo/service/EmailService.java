@@ -52,19 +52,19 @@ public class EmailService {
         sendEmail(to, subject, body);
     }
 
-    private void sendEmail(String to, String subject, String body) {
+    @org.springframework.scheduling.annotation.Async
+    public void sendEmail(String to, String subject, String body) {
         if (mailSender == null) {
             System.out.println("[MOCK EMAIL] To: " + to);
-            System.out.println("[MOCK EMAIL] Subject: " + subject);
-            System.out.println("[MOCK EMAIL] Body: " + body);
             return;
         }
 
-        // Save to System Outbox (Always)
+        // Save to System Outbox (Initially PENDING)
         com.example.demo.model.SystemNotification note = new com.example.demo.model.SystemNotification();
         note.setRecipient(to);
         note.setSubject(subject);
         note.setBody(body);
+        note.setStatus("PENDING");
         note.setSentAt(java.time.LocalDateTime.now());
         notificationRepository.save(note);
 
@@ -75,12 +75,20 @@ public class EmailService {
             message.setSubject(subject);
             message.setText(body);
             mailSender.send(message);
+
+            // Update status to SENT
+            note.setStatus("SENT");
+            notificationRepository.save(note);
         } catch (Exception e) {
-            System.err.println("Failed to send email: " + e.getMessage());
-            // Log mock even on failure for demo purposes
+            System.err.println("Failed to send email to " + to + ": " + e.getMessage());
+            e.printStackTrace();
+
+            // Update status to FAILED
+            note.setStatus("FAILED");
+            notificationRepository.save(note);
+
+            // Mock fallback log for visibility
             System.out.println("[MOCK EMAIL FALLBACK] To: " + to);
-            System.out.println("[MOCK EMAIL FALLBACK] Subject: " + subject);
-            System.out.println("[MOCK EMAIL FALLBACK] Body: " + body);
         }
     }
 }
