@@ -71,6 +71,20 @@ body {
   text-align: center;
 }
 
+@media (max-width: 480px) {
+    .card {
+        padding: 30px 20px;
+        border-radius: 20px;
+    }
+    .brand-name {
+        font-size: 1.5rem;
+    }
+    .logo-img {
+        width: 64px;
+        height: 64px;
+    }
+}
+
 .form-group {
   margin-bottom: 20px;
 }
