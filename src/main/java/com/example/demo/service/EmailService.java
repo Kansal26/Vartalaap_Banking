@@ -15,16 +15,40 @@ public class EmailService {
     private com.example.demo.repository.SystemNotificationRepository notificationRepository;
 
     public void sendTemporaryPassword(String to, String loginId, String tempPassword, String branchName) {
-        String subject = "Your Bank Portal Account Details";
+        String subject = "Welcome to Vartaalap Banking Portal - Your Account is Ready";
+        String resolvedBranch = (branchName != null && !branchName.isBlank()) ? branchName : "User";
         String body = String.format(
-                "Dear %s,\n\nYour secure banking portal account has been successfully created.\n\nAccess Credentials:\nLogin ID: %s\nTemporary Password: %s\n\nPlease log in and change your password immediately.",
-                (branchName != null && !branchName.isBlank()) ? branchName : "User", loginId, tempPassword);
+                "Dear %s,\n\n" +
+                "Welcome to the Vartaalap Banking family!\n\n" +
+                "Our team has successfully created your secure banking portal account. You can now access our digital services, explore banking schemes, and track your applications in real-time.\n\n" +
+                "Access Credentials:\n" +
+                "Login ID: %s\n" +
+                "Temporary Password: %s\n\n" +
+                "Important Next Steps:\n" +
+                "1. Access the Portal: Navigate to the official bank login page.\n" +
+                "2. First Login: Use the credentials provided above to sign in.\n" +
+                "3. Password Security: For your protection, you will be required to change your password immediately upon your first login.\n\n" +
+                "If you have any questions, please contact our support desk at support@vartaalapbank.com.\n\n" +
+                "Welcome aboard!\n\n" +
+                "Best regards,\n" +
+                "The Vartaalap Administrative Team\n" +
+                "Vartaalap Banking Digital Services",
+                resolvedBranch, loginId, tempPassword);
         sendEmail(to, subject, body);
     }
 
     public void sendOtp(String to, String otp) {
-        String subject = "Password Reset OTP";
-        String body = String.format("Your OTP for password reset is: %s\nThis OTP is valid for 5 minutes.", otp);
+        String subject = "Security Alert: Your Password Reset OTP";
+        String body = String.format(
+                "Hello,\n\n" +
+                "We received a request to reset the password for your Vartaalap Banking account.\n\n" +
+                "To proceed, please use the following One-Time Password (OTP):\n" +
+                "%s\n\n" +
+                "Note: This code is sensitive and will expire in 5 minutes. Do not share this code with anyone, including bank officials.\n\n" +
+                "If you did not request this reset, please ignore this email or notify our security team immediately.\n\n" +
+                "Best regards,\n" +
+                "Vartaalap Security Team",
+                otp);
         sendEmail(to, subject, body);
     }
 
