@@ -14,6 +14,7 @@ public class SystemNotification {
 
     private String recipient;
     private String subject;
+    @jakarta.persistence.Column(columnDefinition = "TEXT")
     private String body;
     private String status; // SENT, FAILED, PENDING
     private LocalDateTime sentAt;
