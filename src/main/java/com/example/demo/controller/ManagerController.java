@@ -3,12 +3,18 @@ package com.example.demo.controller;
 import com.example.demo.dto.BranchPerformanceDTO;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.dto.ApplicationExportDTO;
 import com.example.demo.service.AnalyticsService;
+import com.example.demo.service.ExportService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import java.io.IOException;
 import java.security.Principal;
 import java.util.List;
 
@@ -17,6 +23,9 @@ public class ManagerController {
 
     @Autowired
     private AnalyticsService analyticsService;
+
+    @Autowired
+    private ExportService exportService;
 
 
     @Autowired
@@ -53,4 +62,25 @@ public class ManagerController {
         return "manager_dashboard";
     }
 
+    @GetMapping("/manager/export/excel")
+    public ResponseEntity<byte[]> exportExcel() throws IOException {
+        List<ApplicationExportDTO> apps = exportService.getAllApplications();
+        byte[] data = exportService.generateExcel(apps);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=applications_report.xlsx")
+                .contentType(MediaType.parseMediaType("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"))
+                .body(data);
+    }
+
+    @GetMapping("/manager/export/csv")
+    public ResponseEntity<byte[]> exportCsv() {
+        List<ApplicationExportDTO> apps = exportService.getAllApplications();
+        byte[] data = exportService.generateCsv(apps);
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=applications_report.csv")
+                .contentType(MediaType.TEXT_PLAIN)
+                .body(data);
+    }
 }
