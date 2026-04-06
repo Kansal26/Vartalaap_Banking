@@ -435,67 +435,6 @@
                 </table>
             </div>
 
-            <!-- Transfer Portal -->
-            <div id="transfer-portal" class="section-card">
-                <h2 class="section-title">Transfer Request Portal</h2>
-                <div style="display: flex; gap: 2rem;">
-                    <!-- Request Form -->
-                    <div style="flex: 1;">
-                        <h3>Initiate Transfer</h3>
-                        <form th:action="@{/manager/transfer-request}" method="post">
-                            <div class="form-group">
-                                <label>Target Region</label>
-                                <select name="targetRegion" required>
-                                    <option value="" disabled selected>Select Region</option>
-                                    <option value="North">North</option>
-                                    <option value="South">South</option>
-                                    <option value="East">East</option>
-                                    <option value="West">West</option>
-                                    <option value="Central">Central</option>
-                                </select>
-                            </div>
-                            <div class="form-group">
-                                <label>Target Branch</label>
-                                <input type="text" name="targetBranch" placeholder="Enter Branch Name" required />
-                            </div>
-                            <div class="form-group">
-                                <label>Replacement Employee (Name/ID)</label>
-                                <input type="text" name="replacementName" placeholder="Who will fill your vacancy?"
-                                    required />
-                            </div>
-                            <button type="submit" class="btn-primary">Send Request to Admin</button>
-                        </form>
-                    </div>
-
-                    <!-- My Requests Status -->
-                    <div style="flex: 1;">
-                        <h3>My Transfer Status</h3>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Target Branch</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr th:each="req : ${myRequests}">
-                                    <td th:text="${req.requestDate}"></td>
-                                    <td th:text="${req.targetBranch}"></td>
-                                    <td>
-                                        <span th:text="${req.status}"
-                                            th:style="${req.status == 'Approved' ? 'color: green; font-weight: bold;' : (req.status == 'Rejected' ? 'color: red; font-weight: bold;' : 'color: orange; font-weight: bold;')}">
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr th:if="${myRequests.isEmpty()}">
-                                    <td colspan="3">No transfer requests found.</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
 
         </main>
     </div>

@@ -1,17 +1,13 @@
 package com.example.demo.controller;
 
 import com.example.demo.dto.BranchPerformanceDTO;
-import com.example.demo.model.TransferRequest;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.AnalyticsService;
-import com.example.demo.service.TransferService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import java.security.Principal;
 import java.util.List;
@@ -22,8 +18,6 @@ public class ManagerController {
     @Autowired
     private AnalyticsService analyticsService;
 
-    @Autowired
-    private TransferService transferService;
 
     @Autowired
     private UserRepository userRepo;
@@ -37,9 +31,6 @@ public class ManagerController {
         List<BranchPerformanceDTO> rankings = analyticsService.getBranchRankings();
         model.addAttribute("rankings", rankings);
 
-        // 2. Fetch My Transfer Requests
-        List<TransferRequest> myRequests = transferService.getMyRequests(manager);
-        model.addAttribute("myRequests", myRequests);
 
         // 3. Prepare Data for Charts (Aggregation for the whole bank or manager's
         // branch?)
@@ -62,16 +53,4 @@ public class ManagerController {
         return "manager_dashboard";
     }
 
-    @PostMapping("/manager/transfer-request")
-    public String createTransferRequest(@RequestParam String targetBranch,
-            @RequestParam String targetRegion,
-            @RequestParam String replacementName,
-            Principal principal) {
-        String username = principal.getName();
-        User manager = userRepo.findByUsername(username);
-
-        transferService.createTransferRequest(manager, targetBranch, targetRegion, replacementName);
-
-        return "redirect:/manager_dashboard?success=true";
-    }
 }
