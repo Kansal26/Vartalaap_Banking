@@ -14,11 +14,11 @@ public class EmailService {
     @Autowired
     private com.example.demo.repository.SystemNotificationRepository notificationRepository;
 
-    public void sendTemporaryPassword(String to, String loginId, String tempPassword) {
+    public void sendTemporaryPassword(String to, String loginId, String tempPassword, String branchName) {
         String subject = "Your Bank Portal Account Details";
         String body = String.format(
-                "Hello,\n\nYour account has been created.\nLogin ID: %s\nTemporary Password: %s\n\nPlease log in and change your password immediately.",
-                loginId, tempPassword);
+                "Dear %s,\n\nYour secure banking portal account has been successfully created.\n\nAccess Credentials:\nLogin ID: %s\nTemporary Password: %s\n\nPlease log in and change your password immediately.",
+                (branchName != null && !branchName.isBlank()) ? branchName : "User", loginId, tempPassword);
         sendEmail(to, subject, body);
     }
 

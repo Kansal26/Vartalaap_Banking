@@ -90,7 +90,7 @@ public class AdminController {
         userRepository.save(newUser);
 
         // Send email with credentials
-        emailService.sendTemporaryPassword(email, username, tempPassword);
+        emailService.sendTemporaryPassword(email, username, tempPassword, branch);
 
         redirectAttributes.addFlashAttribute("success", "User created successfully!");
         redirectAttributes.addFlashAttribute("newUserId", username);
