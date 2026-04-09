@@ -24,11 +24,14 @@ public class DemoApplication {
             };
 
             for (User user : users) {
-                if (repo.findByUsername(user.getUsername()) == null) {
+                User existingUser = repo.findByUsername(user.getUsername());
+                if (existingUser == null) {
                     repo.save(user);
                     System.out.println("Created user: " + user.getUsername() + " [" + user.getRole() + "]");
                 } else {
-                    System.out.println("ℹ️ User '" + user.getUsername() + "' already exists.");
+                    System.out.println("ℹ️ User '" + user.getUsername() + "' already exists. Resetting password.");
+                    existingUser.setPassword(user.getPassword());
+                    repo.save(existingUser);
                 }
             }
         };

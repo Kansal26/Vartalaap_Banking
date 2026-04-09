@@ -120,11 +120,12 @@ public class UserDataSeeder implements CommandLineRunner {
             userRepository.save(user);
             System.out.println("✅ User '" + username + "' created.");
         } else {
-            System.out.println("ℹ️ User '" + username + "' already exists. Updating details.");
+            System.out.println("ℹ️ User '" + username + "' already exists. Updating details and resetting password.");
             User user = userRepository.findByUsername(username);
             user.setFullName(fullName);
             user.setYearOfJoining(yearOfJoining);
             user.setBranch(branch);
+            user.setPassword(passwordEncoder.encode(rawPassword)); // Force reset password to default
             userRepository.save(user);
         }
     }
