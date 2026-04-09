@@ -6,11 +6,9 @@ com/example/demo/service/PmsbyService.class
 com/example/demo/config/SecurityConfig.class
 com/example/demo/repository/TransferRequestRepository.class
 com/example/demo/service/Fast2SmsService.class
-com/example/demo/model/User.class
 com/example/demo/model/pmmyForm.class
 com/example/demo/repository/pmmyFormRepository.class
 com/example/demo/model/kvpForm.class
-com/example/demo/model/TransferRequest.class
 com/example/demo/dto/PmmyDTO.class
 com/example/demo/repository/UserRepository.class
 com/example/demo/dto/ApplicationExportDTO.class

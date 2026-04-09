@@ -15,4 +15,8 @@ public interface FormConfigRepository extends JpaRepository<FormConfig, Long> {
     List<FormConfig> findBySchemeNameAndStaticFieldAndEnabled(String schemeName, boolean staticField, boolean enabled);
 
     Optional<FormConfig> findBySchemeNameAndFieldName(String schemeName, String fieldName);
+
+    List<FormConfig> findByStaticFieldAndBranch(boolean staticField, String branch);
+
+    List<FormConfig> findBySchemeNameAndStaticFieldAndBranch(String schemeName, boolean staticField, String branch);
 }

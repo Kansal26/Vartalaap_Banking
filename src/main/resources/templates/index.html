@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vartaalap | Next-Gen Banking</title>
+    <link rel="stylesheet" th:href="@{/css/landing.css}">
+    <!-- Font Awesome for sleek icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+
+    <!-- Custom Cursor -->
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-outline" id="cursor-outline"></div>
+
+    <!-- Background Elements -->
+    <div class="bg-grid"></div>
+    <div class="spotlight" id="spotlight"></div>
+
+    <!-- Navigation -->
+    <nav class="nav-ultra">
+        <div class="logo-container">
+            <span class="logo-text">Vartaalap</span>
+        </div>
+        <div class="nav-right">
+            <a href="/login" class="hover-target">Initiate Session</a>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-ultra" style="overflow: hidden;">
+        <!-- Floating orbs for interactive background feel -->
+        <div class="glow-orb orb-1"></div>
+        <div class="glow-orb orb-2"></div>
+
+        <h1 class="hero-title-massive" style="position: relative; z-index: 2;">Paperwork<br>Is Dead.</h1>
+        <p class="hero-subtitle-modern" style="position: relative; z-index: 2;">
+            Welcome to the future of banking operations. We seamlessly bridge the gap between rigorous branch-level scheme processing and continuous regional follow-ups. Everything is now digital, instant, and frictionless.
+        </p>
+
+        <!-- Scroll Indicator -->
+        <div class="scroll-indicator">
+            <div class="mouse">
+                <div class="wheel"></div>
+            </div>
+            <span>Discover More</span>
+        </div>
+    </section>
+
+    <!-- Scrolling Tape -->
+    <div class="marquee-container">
+        <div class="marquee-content">
+            <span>AUTOMATED WORKFLOWS</span>
+            <span>//</span>
+            <span>INSTANT APPROVALS</span>
+            <span>//</span>
+            <span>DIGITAL PMJJBY</span>
+            <span>//</span>
+            <span>FRICTIONLESS PMSBY</span>
+            <span>//</span>
+            <span>SEAMLESS APY</span>
+            <span>//</span>
+            <span>AUTOMATED WORKFLOWS</span>
+        </div>
+    </div>
+
+    <!-- Split Asymmetric Section -->
+    <section class="split-section">
+        <div class="split-left reveal">
+            <div class="big-number">01</div>
+            <h2 class="split-title">The Friction</h2>
+            <p class="split-desc">
+                Historically, legacy bank branches suffered from overwhelming physical forms. Managers endured endless back-and-forth emails, lost documents, and manual regional follow-ups just to process basic financial schemes.
+            </p>
+            <h2 class="split-title" style="margin-top: 60px;">The Evolution</h2>
+            <p class="split-desc">
+                <strong>Vartaalap</strong> modernizes the pipeline. We enforce a strict Maker-Checker-Approver hierarchy with real-time API integrations, instant validation, and zero paper trail.
+            </p>
+        </div>
+        
+        <div class="split-right">
+            <div class="cards-container">
+                <div class="glass-3d hover-target tilt-card reveal" style="transition-delay: 0.1s;">
+                    <i class="card-icon-3d fas fa-bolt"></i>
+                    <h3>Real-Time Processing</h3>
+                    <p>Forms are validated instantly via the dashboard. No more manual errors or missing signatures slowing down scheme processing.</p>
+                </div>
+                <div class="glass-3d hover-target tilt-card reveal" style="transition-delay: 0.3s; transform: translateX(-50px);">
+                    <i class="card-icon-3d fas fa-fingerprint"></i>
+                    <h3>Digital Audit Trails</h3>
+                    <p>Every submission, checker validation, and final approval is immutably logged. Regional managers see the whole picture natively.</p>
+                </div>
+                <div class="glass-3d hover-target tilt-card reveal" style="transition-delay: 0.5s;">
+                    <i class="card-icon-3d fas fa-paper-plane"></i>
+                    <h3>Asynchronous Comms</h3>
+                    <p>Emails fire automatically upon completion using our ultra-fast async background workers. Users are notified instantly.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Cinematic Stats Section -->
+    <section class="stats-ultra reveal">
+        <h2 class="stats-title">The Impact in Numbers</h2>
+        <div class="stats-grid">
+            <div class="stat-card glass-3d hover-target tilt-card">
+                <div><span class="stat-number" data-target="85">0</span><span class="stat-symbol">%</span></div>
+                <p class="stat-label">Faster Processing</p>
+            </div>
+            <div class="stat-card glass-3d hover-target tilt-card">
+                <div><span class="stat-number" th:data-target="${activeBanks != null ? activeBanks : 24}">0</span><span class="stat-symbol">+</span></div>
+                <p class="stat-label">Active Banks</p>
+            </div>
+            <div class="stat-card glass-3d hover-target tilt-card">
+                <div><span class="stat-number" th:data-target="${totalUsers != null ? totalUsers : 15200}">0</span><span class="stat-symbol">+</span></div>
+                <p class="stat-label">Active Users</p>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Custom Cursor Logic
+        const dot = document.getElementById('cursor-dot');
+        const outline = document.getElementById('cursor-outline');
+        const spotlight = document.getElementById('spotlight');
+        const hoverTargets = document.querySelectorAll('.hover-target');
+
+        window.addEventListener('mousemove', (e) => {
+            const posX = e.clientX;
+            const posY = e.clientY;
+
+            // Move cursor
+            dot.style.left = `${posX}px`;
+            dot.style.top = `${posY}px`;
+            
+            // Smooth outline trailing
+            outline.animate({
+                left: `${posX}px`,
+                top: `${posY}px`
+            }, { duration: 500, fill: "forwards" });
+
+            // Move spotlight and 3D radial gradients tracking CSS vars
+            spotlight.style.setProperty('--mouse-x', `${posX}px`);
+            spotlight.style.setProperty('--mouse-y', `${posY}px`);
+            
+            document.querySelectorAll('.glass-3d').forEach(card => {
+                const rect = card.getBoundingClientRect();
+                card.style.setProperty('--mouse-x', `${e.clientX - rect.left}px`);
+                card.style.setProperty('--mouse-y', `${e.clientY - rect.top}px`);
+            });
+        });
+
+        // Hover Effects for Custom Cursor
+        hoverTargets.forEach(target => {
+            target.addEventListener('mouseenter', () => {
+                outline.classList.add('hover-effect');
+                if(target.classList.contains('glass-3d')) {
+                    target.classList.add('hovered');
+                }
+            });
+            target.addEventListener('mouseleave', () => {
+                outline.classList.remove('hover-effect');
+                if(target.classList.contains('glass-3d')) {
+                    target.classList.remove('hovered');
+                }
+            });
+        });
+
+        // 3D Tilt Effect on Cards
+        const cards = document.querySelectorAll('.tilt-card');
+        cards.forEach(card => {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -10;
+                const rotateY = ((x - centerX) / centerX) * 10;
+                
+                card.style.transform = `perspective(1000px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.02, 1.02, 1.02)`;
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = `perspective(1000px) rotateX(0deg) rotateY(0deg) scale3d(1, 1, 1)`;
+                if(card.classList.contains('reveal') && card.classList.contains('active')) {
+                   // restore any base transform classes if necessary, or let CSS transiton reset it
+                }
+            });
+        });
+
+        // Intersection Observer for Scroll Reveals
+        const revealElements = document.querySelectorAll('.reveal');
+        const revealObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, { threshold: 0.1 });
+
+        revealElements.forEach(el => revealObserver.observe(el));
+
+        // Animated Number Counters
+        const statNumbers = document.querySelectorAll('.stat-number');
+        let hasCounted = false;
+        
+        const counterObserver = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting && !hasCounted) {
+                    hasCounted = true;
+                    statNumbers.forEach(stat => {
+                        const target = +stat.getAttribute('data-target');
+                        const duration = 2500; // ms
+                        const frameRate = 60;
+                        const totalFrames = Math.round((duration / 1000) * frameRate);
+                        const increment = target / totalFrames;
+                        let current = 0;
+                        let frame = 0;
+                        
+                        const updateCount = () => {
+                            frame++;
+                            current += increment;
+                            if (frame < totalFrames) {
+                                stat.innerText = Math.ceil(current).toLocaleString();
+                                requestAnimationFrame(updateCount);
+                            } else {
+                                stat.innerText = target.toLocaleString();
+                            }
+                        };
+                        updateCount();
+                    });
+                }
+            });
+        }, { threshold: 0.4 });
+        
+        const statsSection = document.querySelector('.stats-ultra');
+        if (statsSection) counterObserver.observe(statsSection);
+
+    </script>
+</body>
+</html>

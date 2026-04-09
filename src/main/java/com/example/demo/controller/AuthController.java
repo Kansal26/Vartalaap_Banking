@@ -82,7 +82,22 @@ public class AuthController {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder passwordEncoder;
+
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper = new com.fasterxml.jackson.databind.ObjectMapper();
+
+    // Landing Page
+    @GetMapping({"/", "/index"})
+    public String indexPage(org.springframework.ui.Model model) {
+        long totalUsers = userRepository.count();
+        long activeBanks = userRepository.countDistinctBranches();
+        
+        model.addAttribute("totalUsers", totalUsers);
+        model.addAttribute("activeBanks", activeBanks);
+        
+        return "index";
+    }
 
     // Login Page
     @GetMapping("/login")
@@ -90,11 +105,46 @@ public class AuthController {
         return "login";
     }
 
+    // Self Serve Registration Portal
+    @GetMapping("/register")
+    public String registerPage() {
+        return "login";
+    }
+
+    @PostMapping("/register")
+    public String handleRegister(@RequestParam("username") String username,
+                                 @RequestParam("email") String email,
+                                 @RequestParam("password") String password,
+                                 @RequestParam("bankName") String bankName,
+                                 RedirectAttributes redirectAttributes) {
+        if (userRepository.existsByUsername(username)) {
+            redirectAttributes.addFlashAttribute("error", "Username already exists. Please choose a different Login ID.");
+            return "redirect:/register";
+        }
+        if (userRepository.existsByEmail(email)) {
+            redirectAttributes.addFlashAttribute("error", "Email is already registered. Please login or use a different email.");
+            return "redirect:/register";
+        }
+
+        User newUser = new User();
+        newUser.setUsername(username);
+        newUser.setEmail(email);
+        newUser.setPassword(passwordEncoder.encode(password));
+        newUser.setRole("ADMIN"); // The requested feature is that they become an Admin
+        newUser.setBranch(bankName);
+        userRepository.save(newUser);
+
+        redirectAttributes.addFlashAttribute("successDetails", "Registration successful! You have been granted ADMIN access to the " + bankName + " Vartaalap Portal. Please sign in.");
+        return "redirect:/login";
+    }
+
     @GetMapping("/apy")
-    public String apy(Model model) {
+    public String apy(Model model, Authentication authentication) {
         model.addAttribute("form", new apyForm());
+        User user = userRepository.findByUsername(authentication.getName());
+        String branch = (user != null) ? user.getBranch() : null;
         // Only dynamic (non-static) fields rendered via th:each
-        model.addAttribute("formConfigs", formConfigRepository.findBySchemeNameAndStaticField("APY", false));
+        model.addAttribute("formConfigs", formConfigRepository.findBySchemeNameAndStaticFieldAndBranch("APY", false, branch));
         // Set of fieldNames for enabled static fields — used to conditionally render
         // hardcoded fields
         Set<String> enabledFields = formConfigRepository.findBySchemeNameAndStaticFieldAndEnabled("APY", true, true)
@@ -125,10 +175,12 @@ public class AuthController {
     }
 
     @GetMapping("/pmjjby")
-    public String pmjjby(Model model) {
+    public String pmjjby(Model model, Authentication authentication) {
         model.addAttribute("form", new pmjjbyForm());
+        User user = userRepository.findByUsername(authentication.getName());
+        String branch = (user != null) ? user.getBranch() : null;
         // Only dynamic (non-static) fields rendered via th:each
-        model.addAttribute("formConfigs", formConfigRepository.findBySchemeNameAndStaticField("PMJJBY", false));
+        model.addAttribute("formConfigs", formConfigRepository.findBySchemeNameAndStaticFieldAndBranch("PMJJBY", false, branch));
         // Set of fieldNames for enabled static fields — used to conditionally render
         // hardcoded fields
         Set<String> enabledFields = formConfigRepository.findBySchemeNameAndStaticFieldAndEnabled("PMJJBY", true, true)
@@ -163,10 +215,12 @@ public class AuthController {
     }
 
     @GetMapping("/pmsby")
-    public String pmsby(Model model) {
+    public String pmsby(Model model, Authentication authentication) {
         model.addAttribute("form", new pmsbyForm());
+        User user = userRepository.findByUsername(authentication.getName());
+        String branch = (user != null) ? user.getBranch() : null;
         // Only dynamic (non-static) fields rendered via th:each
-        model.addAttribute("formConfigs", formConfigRepository.findBySchemeNameAndStaticField("PMSBY", false));
+        model.addAttribute("formConfigs", formConfigRepository.findBySchemeNameAndStaticFieldAndBranch("PMSBY", false, branch));
         // Set of fieldNames for enabled static fields — used to conditionally render
         // hardcoded fields
         Set<String> enabledFields = formConfigRepository.findBySchemeNameAndStaticFieldAndEnabled("PMSBY", true, true)
@@ -201,9 +255,11 @@ public class AuthController {
     }
 
     @GetMapping("/kvp")
-    public String kvp(Model model) {
+    public String kvp(Model model, Authentication authentication) {
         model.addAttribute("form", new kvpForm());
-        model.addAttribute("formConfigs", formConfigRepository.findBySchemeNameAndStaticField("KVP", false));
+        User user = userRepository.findByUsername(authentication.getName());
+        String branch = (user != null) ? user.getBranch() : null;
+        model.addAttribute("formConfigs", formConfigRepository.findBySchemeNameAndStaticFieldAndBranch("KVP", false, branch));
         Set<String> enabledFields = formConfigRepository.findBySchemeNameAndStaticFieldAndEnabled("KVP", true, true)
                 .stream().map(FormConfig::getFieldName).collect(Collectors.toSet());
         model.addAttribute("enabledFields", enabledFields);
@@ -232,9 +288,11 @@ public class AuthController {
     }
 
     @GetMapping("/pmmy")
-    public String pmmy(Model model) {
+    public String pmmy(Model model, Authentication authentication) {
         model.addAttribute("form", new pmmyForm());
-        model.addAttribute("formConfigs", formConfigRepository.findBySchemeNameAndStaticField("PMMY", false));
+        User user = userRepository.findByUsername(authentication.getName());
+        String branch = (user != null) ? user.getBranch() : null;
+        model.addAttribute("formConfigs", formConfigRepository.findBySchemeNameAndStaticFieldAndBranch("PMMY", false, branch));
         Set<String> enabledFields = formConfigRepository.findBySchemeNameAndStaticFieldAndEnabled("PMMY", true, true)
                 .stream().map(FormConfig::getFieldName).collect(Collectors.toSet());
         model.addAttribute("enabledFields", enabledFields);
@@ -340,13 +398,44 @@ public class AuthController {
         User user = userRepository.findByUsername(currentUser);
         String branchName = (user != null) ? user.getBranch() : currentUser;
         model.addAttribute("branchName", branchName);
+        model.addAttribute("userProfile", user);
 
         return "dashboard";
     }
 
+    @PostMapping("/update-profile")
+    public String updateProfile(
+            @RequestParam(required = false) String fullName,
+            @RequestParam(required = false) String yearOfJoining,
+            @RequestParam(required = false) String branch,
+            @RequestParam(required = false) String region,
+            java.security.Principal principal,
+            jakarta.servlet.http.HttpServletRequest request,
+            RedirectAttributes redirectAttributes) {
+
+        if (principal != null) {
+            User pUser = userRepository.findByUsername(principal.getName());
+            if (pUser != null) {
+                if (fullName != null) pUser.setFullName(fullName);
+                if (yearOfJoining != null) pUser.setYearOfJoining(yearOfJoining);
+                if (branch != null) pUser.setBranch(branch);
+                if (region != null) pUser.setRegion(region);
+                userRepository.save(pUser);
+                redirectAttributes.addFlashAttribute("success", "Profile updated successfully!");
+            }
+        }
+
+        String referer = request.getHeader("Referer");
+        return "redirect:" + (referer != null ? referer : "/login");
+    }
+
     @GetMapping("/approver_dashboard")
-    public String showApproverDashboard(@RequestParam(defaultValue = "All") String status, Model model) {
+    public String showApproverDashboard(@RequestParam(defaultValue = "All") String status, Model model, java.security.Principal principal) {
         try {
+            if (principal != null) {
+                User pUser = userRepository.findByUsername(principal.getName());
+                model.addAttribute("approverProfile", pUser);
+            }
             List<ApyDTO> apyTransactions = apyService.getAllApyTransactions();
             List<PmjjbyDTO> pmjjbyTransactions = pmjjbyService.getAllPmjjbyTransactions();
             List<PmsbyDTO> pmsbyTransactions = pmsbyService.getAllPmsbyTransactions();

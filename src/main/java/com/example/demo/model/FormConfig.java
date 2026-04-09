@@ -22,6 +22,9 @@ public class FormConfig {
     // true = field is rendered in the form, false = admin has disabled it
     private boolean enabled = true;
 
+    // the bank this config belongs to (null for static/global fields)
+    private String branch;
+
     public Long getId() {
         return id;
     }
@@ -76,5 +79,13 @@ public class FormConfig {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public String getBranch() {
+        return branch;
+    }
+
+    public void setBranch(String branch) {
+        this.branch = branch;
     }
 }

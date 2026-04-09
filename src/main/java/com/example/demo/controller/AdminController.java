@@ -37,21 +37,27 @@ public class AdminController {
 
     @GetMapping
     public String adminDashboard(Model model, java.security.Principal principal) {
+        User currentUser = null;
         if (principal != null) {
             String username = principal.getName();
-            User currentUser = userRepository.findByUsername(username);
+            currentUser = userRepository.findByUsername(username);
             model.addAttribute("adminProfile", currentUser);
         }
 
-        List<User> users = userRepository.findAll();
+        List<User> users;
+        if (currentUser != null && currentUser.getBranch() != null) {
+            users = userRepository.findByBranch(currentUser.getBranch());
+            model.addAttribute("formConfigs", formConfigRepository.findByStaticFieldAndBranch(false, currentUser.getBranch()));
+        } else {
+            users = userRepository.findAll();
+            model.addAttribute("formConfigs", formConfigRepository.findByStaticField(false));
+        }
+
         users.sort((u1, u2) -> u1.getId().compareTo(u2.getId()));
         model.addAttribute("users", users);
 
         // Static (hardcoded) fields — all of them, enabled or disabled
         model.addAttribute("staticFormConfigs", formConfigRepository.findByStaticField(true));
-
-        // Dynamic (admin-added) fields
-        model.addAttribute("formConfigs", formConfigRepository.findByStaticField(false));
 
         // Pending Transfer Requests removed as per user request
 
@@ -66,6 +72,7 @@ public class AdminController {
             @RequestParam String email,
             @RequestParam String role,
             @RequestParam(required = false) String branch,
+            java.security.Principal principal,
             RedirectAttributes redirectAttributes) {
         if (userRepository.existsByUsername(username)) {
             redirectAttributes.addFlashAttribute("error", "Login ID (Username) already exists!");
@@ -84,7 +91,14 @@ public class AdminController {
         newUser.setEmail(email);
         newUser.setPassword(passwordEncoder.encode(tempPassword));
         newUser.setRole(role);
-        if (branch != null && !branch.isBlank()) {
+        if (principal != null) {
+            User currentUser = userRepository.findByUsername(principal.getName());
+            if (currentUser != null && currentUser.getBranch() != null) {
+                newUser.setBranch(currentUser.getBranch());
+            } else if (branch != null && !branch.isBlank()) {
+                newUser.setBranch(branch);
+            }
+        } else if (branch != null && !branch.isBlank()) {
             newUser.setBranch(branch);
         }
         userRepository.save(newUser);
@@ -147,6 +161,7 @@ public class AdminController {
             @RequestParam String fieldName,
             @RequestParam String fieldLabel,
             @RequestParam String fieldType,
+            java.security.Principal principal,
             RedirectAttributes redirectAttributes) {
         FormConfig config = new FormConfig();
         config.setSchemeName(schemeName);
@@ -155,6 +170,12 @@ public class AdminController {
         config.setFieldType(fieldType);
         config.setStaticField(false);
         config.setEnabled(true);
+        if (principal != null) {
+            User currentUser = userRepository.findByUsername(principal.getName());
+            if (currentUser != null) {
+                config.setBranch(currentUser.getBranch());
+            }
+        }
         formConfigRepository.save(config);
         redirectAttributes.addFlashAttribute("success", "Field added to " + schemeName);
         return "redirect:/admin";

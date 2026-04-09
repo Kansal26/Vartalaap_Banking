@@ -2,21 +2,16 @@
 <html xmlns:th="http://www.thymeleaf.org">
 
 <head>
-  <title>Vartaalap Banking</title>
+  <title>Vartaalap - Auth Portal</title>
   <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Public+Sans:wght@400;500;700;900"
-    rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Public+Sans:wght@400;500;700;900" rel="stylesheet" />
   <script>
     (function () {
       if (!window.allowBackNavigation) {
-        // Force initial state to prevent back
         history.pushState(null, '', location.href);
         window.addEventListener('popstate', function () {
           history.pushState(null, '', location.href);
         });
-
-        // Disable back via keyboard (Alt+← or Backspace on some browsers)
         window.addEventListener('keydown', function (e) {
           if ((e.altKey && e.key === 'ArrowLeft')) {
             e.preventDefault();
@@ -27,51 +22,165 @@
   </script>
 
   <link rel="stylesheet" href="/css/login.css" />
+  <link rel="stylesheet" th:href="@{/css/global.css}">
+  <style>
+    .auth-slider {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 2rem;
+        width: 100%;
+    }
+    .auth-panel {
+        display: none;
+        animation: fadeIn 0.4s ease forwards;
+        width: 100%;
+    }
+    .auth-panel.active {
+        display: block;
+    }
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .bg-marquee-container {
+        width: 200vw;
+        overflow: hidden;
+        background: transparent;
+        position: fixed;
+        top: 50%;
+        left: -50vw;
+        transform: rotate(-5deg) translateY(-50%);
+        z-index: -1;
+        pointer-events: none;
+    }
+    .bg-marquee-content {
+        display: flex;
+        white-space: nowrap;
+        animation: scrollMarquee 60s linear infinite;
+        font-family: 'Syncopate', sans-serif;
+        font-size: 8rem;
+        font-weight: 800;
+        color: transparent;
+        -webkit-text-stroke: 2px rgba(255, 255, 255, 0.03);
+    }
+    .bg-marquee-content span {
+        margin: 0 30px;
+    }
+    @keyframes scrollMarquee {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+    }
+  </style>
 </head>
 
 <body>
+    <!-- Custom Cursor & Background -->
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-outline" id="cursor-outline"></div>
+    <div class="bg-grid"></div>
+    <div class="spotlight" id="spotlight"></div>
+    
+    <!-- Auth Background Interactive Orbs -->
+    <div class="glow-orb orb-1"></div>
+    <div class="glow-orb orb-2"></div>
+    <div class="glow-orb orb-3"></div>
+
+    <div class="bg-marquee-container">
+        <div class="bg-marquee-content">
+            <!-- Repeated twice for seamless marquee loop -->
+            <span>SECURE AUTHENTICATION</span><span>//</span><span>VARTAALAP BANKING</span><span>//</span><span>ENCRYPTED PORTAL</span><span>//</span>
+            <span>SECURE AUTHENTICATION</span><span>//</span><span>VARTAALAP BANKING</span><span>//</span><span>ENCRYPTED PORTAL</span><span>//</span>
+        </div>
+    </div>
+
   <div class="app-container">
-    <div class="card">
+    <div class="card glass-3d hover-target tilt-card" style="padding: 3rem; max-width: 480px; width: 100%;">
       <div class="logo-section">
-        <img src="/images/logo.png" alt="Vartaalap Logo" class="logo-img" />
         <h1 class="brand-name">VARTAALAP</h1>
         <div class="brand-tagline">Premium Digital Banking</div>
       </div>
 
-      <div th:if="${param.error}" class="alert-danger">
-        Invalid Employee ID or Password. Please try again.
+      <div class="auth-slider">
+         <button class="cinematic-btn hover-target" id="btn-login" onclick="toggleAuth('login')" style="background: #fff !important; color: #000 !important;">Login</button>
+         <button class="cinematic-btn hover-target" id="btn-register" onclick="toggleAuth('register')">Sign Up</button>
       </div>
 
-      <h2 class="form-title">Secure Portal Access</h2>
+      <div th:if="${param.error}" class="alert-danger" id="login-error-alert" style="margin-bottom: 1.5rem;">
+        Invalid Employee ID or Password.
+      </div>
+      <div th:if="${param.logout}" class="alert-success" style="background: rgba(48, 209, 88, 0.2); color: #fff; border: 1px solid rgba(48, 209, 88, 0.4); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; text-align: center; backdrop-filter: blur(5px);">
+        Secure Session Terminated Successfully.
+      </div>
+      <div th:if="${successDetails}" class="alert-success" style="background: rgba(10, 132, 255, 0.2); color: #fff; border: 1px solid rgba(10, 132, 255, 0.4); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; text-align: center; backdrop-filter: blur(5px);" th:text="${successDetails}">
+        Registration successful!
+      </div>
+      <!-- Add error display specifically for /register redirects if present in model -->
+      <div th:if="${error}" class="alert-danger" th:text="${error}" style="margin-bottom: 1.5rem;" id="register-error-alert">
+      </div>
+
+      <h2 class="form-title" id="form-title-h2">Secure Portal Access</h2>
       
-      <form th:action="@{/login}" method="post">
-        <div class="form-group">
-          <label for="employee-code">Employee ID</label>
-          <input type="text" id="employee-code" name="username" placeholder="Enter your ID" required />
-        </div>
-        
-        <div class="form-group">
-          <label for="password">Security Password</label>
-          <div style="position: relative; display: flex; align-items: center;">
-            <input type="password" id="password" name="password" placeholder="••••••••" required />
-            <button type="button" id="toggle-password"
-              onclick="togglePasswordVisibility('password', 'eye-icon-login')"
-              style="position: absolute; right: 1rem; background: none; border: none; cursor: pointer; color: #64748b; padding: 0; display: flex; align-items: center;">
-              <svg id="eye-icon-login" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-                <circle cx="12" cy="12" r="3"/>
-              </svg>
-            </button>
+      <!-- LOGIN TAB -->
+      <div id="login-container" class="auth-panel active">
+        <form th:action="@{/login}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <div class="form-group">
+            <label for="employee-code">Login ID</label>
+            <input type="text" id="employee-code" name="username" placeholder="Enter your ID" required />
           </div>
-        </div>
+          <div class="form-group">
+            <label for="login-password">Security Password</label>
+            <div style="position: relative; display: flex; align-items: center;">
+              <input type="password" id="login-password" name="password" placeholder="••••••••" required />
+              <button type="button" class="toggle-password" onclick="togglePasswordVisibility('login-password', 'eye-icon-login')" style="position: absolute; right: 1rem; background: none; border: none; cursor: pointer; color: #64748b; padding: 0;">
+                <svg id="eye-icon-login" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-action" style="margin-top: 2rem;">
+            <button type="submit" class="cinematic-btn hover-target">Establish Secure Session</button>
+          </div>
+        </form>
+        <a th:href="@{/forgot-password}" class="forgot-password" style="margin-top: 1.5rem;">Restricted Access? Recover Password</a>
+      </div>
 
-        <div class="form-action">
-          <button type="submit">Establish Secure Session</button>
-        </div>
-      </form>
+      <!-- REGISTER TAB -->
+      <div id="register-container" class="auth-panel">
+        <form th:action="@{/register}" method="post">
+          <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+          <div class="form-group" style="margin-bottom: 1.5rem;">
+            <label for="bankName">Your Affiliated Bank (Branch Name)</label>
+            <input type="text" id="bankName" name="bankName" placeholder="e.g. State Bank of India, HQ" required />
+          </div>
+          <div class="form-group" style="display: flex; gap: 1rem; margin-bottom: 1.5rem;">
+            <div style="flex: 1;">
+              <label for="username">Requested Login ID</label>
+              <input type="text" id="username" name="username" placeholder="Choose unique ID" required />
+            </div>
+            <div style="flex: 1;">
+              <label for="email">Work Email</label>
+              <input type="email" id="email" name="email" placeholder="user@bank.com" required />
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="reg-password">Security Password</label>
+            <div style="position: relative; display: flex; align-items: center;">
+              <input type="password" id="reg-password" name="password" placeholder="••••••••" required />
+              <button type="button" class="toggle-password" onclick="togglePasswordVisibility('reg-password', 'eye-icon-reg')" style="position: absolute; right: 1rem; background: none; border: none; cursor: pointer; color: #64748b; padding: 0;">
+                <svg id="eye-icon-reg" xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+          <div class="form-action" style="margin-top: 2rem;">
+            <button type="submit" class="cinematic-btn hover-target">Establish Admin Credentials</button>
+          </div>
+        </form>
+      </div>
 
-      <a th:href="@{/forgot-password}" class="forgot-password">Restricted Access? Recover Password</a>
     </div>
   </div>
 
@@ -81,18 +190,47 @@
       var icon = document.getElementById(iconId);
       if (input.type === 'password') {
         input.type = 'text';
-        icon.innerHTML = `
-          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-          <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-          <line x1="1" y1="1" x2="23" y2="23"/>`;
+        icon.innerHTML = '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/><line x1="1" y1="1" x2="23" y2="23"/>';
       } else {
         input.type = 'password';
-        icon.innerHTML = `
-          <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-          <circle cx="12" cy="12" r="3"/>`;
+        icon.innerHTML = '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
       }
     }
-  </script>
-</body>
 
+    function toggleAuth(type) {
+        const btnLogin = document.getElementById('btn-login');
+        const btnRegister = document.getElementById('btn-register');
+        const loginForm = document.getElementById('login-container');
+        const registerForm = document.getElementById('register-container');
+        const formTitle = document.getElementById('form-title-h2');
+
+        // Cinematic active state overrides
+        const activeStyle = 'background: #fff !important; color: #000 !important; border-color: #fff !important;';
+        const inactiveStyle = 'background: transparent !important; color: #fff !important;';
+
+        if(type === 'register') {
+            btnLogin.style.cssText = inactiveStyle;
+            btnRegister.style.cssText = activeStyle;
+            loginForm.classList.remove('active');
+            registerForm.classList.add('active');
+            formTitle.innerText = 'Platform Registration';
+        } else {
+            btnRegister.style.cssText = inactiveStyle;
+            btnLogin.style.cssText = activeStyle;
+            registerForm.classList.remove('active');
+            loginForm.classList.add('active');
+            formTitle.innerText = 'Secure Portal Access';
+        }
+    }
+
+    // Auto-slide to register tab if there is a registration error in the model
+    window.onload = function() {
+        if(document.getElementById('register-error-alert')) {
+            toggleAuth('register');
+        }
+    };
+  </script>
+  <script th:src="@{/js/global.js}"></script>
+
+</body>
 </html>

@@ -67,13 +67,23 @@
       box-shadow: 0 20px 25px -5px rgba(26, 35, 126, 0.4);
     }
   </style>
+
+    <link rel="stylesheet" th:href="@{/css/global.css}">
 </head>
 <body>
+    <!-- Custom Cursor & Background -->
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-outline" id="cursor-outline"></div>
+    <div class="bg-grid"></div>
+    <div class="spotlight" id="spotlight"></div>
+
   <div class="error-container">
     <h1>!</h1>
     <h2>Oops! Something went wrong</h2>
     <p th:text="${errorMessage} ?: 'We encountered an unexpected issue while processing your request. Please try again or contact support if the problem persists.'"></p>
     <a href="/" class="btn">Return to Safety</a>
   </div>
+    <script th:src="@{/js/global.js}"></script>
+
 </body>
 </html>

@@ -1,158 +1,120 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-
 <head>
     <meta charset="UTF-8">
-    <title>Verify OTP - Bank Portal</title>
-    <link rel="stylesheet" href="/css/dashboard.css">
+    <title>Verify OTP - Vartaalap</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?display=swap&family=Noto+Sans:wght@400;500;700;900&family=Public+Sans:wght@400;500;700;900" rel="stylesheet" />
+    <link rel="stylesheet" href="/css/login.css">
+    <link rel="stylesheet" th:href="@{/css/global.css}">
     <style>
-        :root {
-            --primary-indigo: #1e1b4b; /* Deeper Indigo */
-            --accent-gold: #94a3b8;    /* Muted Slate */
-            --bg-gradient: radial-gradient(circle at top right, #1e1b4b, #0f172a);
-            --glass-bg: rgba(255, 255, 255, 0.95);
-            --text-main: #1e293b;
-            --text-muted: #64748b;
-        }
-
-        body {
-            background: var(--bg-gradient);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: 'Public Sans', sans-serif;
-        }
-
-        .reset-card {
-            background: var(--glass-bg);
-            padding: 3rem;
-            border-radius: 24px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-            width: 100%;
-            max-width: 440px;
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .reset-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, var(--primary-indigo), #334155);
-        }
-
-        .reset-card h2 {
-            margin-top: 0;
-            color: var(--primary-indigo);
-            text-align: center;
-            font-weight: 800;
-            font-size: 1.75rem;
-            letter-spacing: -0.02em;
-        }
-
-        .form-group {
-            margin-bottom: 2rem;
-        }
-
-        .form-control {
-            width: 100%;
-            height: 64px;
-            padding: 0;
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
-            box-sizing: border-box;
-            text-align: center;
-            font-size: 1.5rem;
-            font-weight: 800;
-            letter-spacing: 0.5rem;
-            background: #f8fafc;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-
-        .form-control:focus {
-            outline: none;
-            border-color: var(--primary-indigo);
-            background: white;
-            box-shadow: 0 0 0 4px rgba(26, 35, 126, 0.05);
-        }
-
-        .btn {
-            width: 100%;
-            height: 56px;
-            border: none;
-            border-radius: 12px;
-            background: #1e1b4b;
-            color: white;
-            font-weight: 800;
-            cursor: pointer;
-            font-size: 1.1rem;
-            transition: all 0.2s;
-            box-shadow: 0 10px 15px -3px rgba(26, 35, 126, 0.3);
-        }
-
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 20px 25px -5px rgba(26, 35, 126, 0.4);
-        }
-
-        .alert {
-            padding: 1rem;
-            margin-bottom: 1.5rem;
-            border-radius: 12px;
-            text-align: center;
-            font-weight: 600;
-            font-size: 0.9rem;
-        }
-
-        .alert-danger {
-            background: #fee2e2;
-            color: #991b1b;
-            border: 1px solid #fecaca;
-        }
-
         .step-badge {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 0.5rem;
-            background: #eef2ff;
-            color: var(--primary-indigo);
+            background: rgba(10, 132, 255, 0.2);
+            color: #fff;
             padding: 0.5rem 1rem;
             border-radius: 99px;
             font-size: 0.8rem;
             font-weight: 700;
             margin: 0 auto 2rem auto;
             width: fit-content;
-            border: 1px solid rgba(26, 35, 126, 0.1);
+            border: 1px solid rgba(10, 132, 255, 0.4);
+        }
+        .otp-input {
+            width: 100%;
+            height: 64px;
+            padding: 0;
+            border: 2px solid rgba(255, 255, 255, 0.2) !important;
+            border-radius: 16px;
+            box-sizing: border-box;
+            text-align: center;
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: 1rem;
+            background: rgba(255, 255, 255, 0.1) !important;
+            color: #fff !important;
+            transition: all 0.2s;
+            cursor: text !important;
+        }
+        .otp-input:focus {
+            outline: none;
+            border-color: var(--accent-blue) !important;
+            background: rgba(255, 255, 255, 0.15) !important;
+        }
+        .bg-marquee-container {
+            width: 200vw;
+            overflow: hidden;
+            background: #eab308;
+            color: #000;
+            padding: 15px 0;
+            position: fixed;
+            top: 40%;
+            left: -50vw;
+            transform: rotate(-10deg) translateY(-50%);
+            z-index: -1;
+            box-shadow: 0 10px 50px rgba(234, 179, 8, 0.4);
+        }
+        .bg-marquee-content {
+            display: flex;
+            white-space: nowrap;
+            animation: scrollMarquee 20s linear infinite;
+            font-family: 'Syncopate', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            letter-spacing: 5px;
+        }
+        .bg-marquee-content span {
+            margin: 0 30px;
+        }
+        @keyframes scrollMarquee {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
         }
     </style>
 </head>
-
 <body>
-    <div class="reset-card">
-        <h2>📨 Verify OTP</h2>
-        <div class="step-badge">Step 2 of 3 &mdash; Email Verification</div>
-        <p style="text-align: center; color: #666; margin-bottom: 1.5rem;">Enter the 6-digit code sent to <br><b
-                th:text="${email}">user@example.com</b></p>
+    <div class="cursor-dot" id="cursor-dot"></div>
+    <div class="cursor-outline" id="cursor-outline"></div>
+    <div class="bg-grid"></div>
+    <div class="spotlight" id="spotlight"></div>
 
-        <div th:if="${error}" class="alert alert-danger" th:text="${error}"></div>
-
-        <form th:action="@{/verify-otp}" method="post">
-            <input type="hidden" name="email" th:value="${email}">
-            <div class="form-group">
-                <input type="text" name="otp" class="form-control" maxlength="6" pattern="\d{6}" placeholder="------"
-                    required autofocus>
-            </div>
-            <button type="submit" class="btn">Verify OTP</button>
-        </form>
+    <div class="bg-marquee-container">
+        <div class="bg-marquee-content">
+            <!-- Repeated twice for seamless marquee loop -->
+            <span>SECURE AUTHENTICATION</span><span>//</span><span>VARTAALAP BANKING</span><span>//</span><span>ENCRYPTED PORTAL</span><span>//</span>
+            <span>SECURE AUTHENTICATION</span><span>//</span><span>VARTAALAP BANKING</span><span>//</span><span>ENCRYPTED PORTAL</span><span>//</span>
+        </div>
     </div>
-</body>
 
+    <div class="app-container">
+        <div class="card glass-3d hover-target tilt-card" style="padding: 3rem; max-width: 480px; text-align: center;">
+            <div class="logo-section">
+                <img src="/images/logo.png" alt="Vartaalap Logo" class="logo-img" style="margin: 0 auto 1.5rem auto;" />
+            </div>
+            
+            <h2 class="form-title" style="margin-bottom: 0.5rem;">Verify OTP</h2>
+            <p style="color: var(--text-muted); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Enter the 6-digit code sent to <br><b th:text="${email}" style="color: var(--text-primary);">user@example.com</b>
+            </p>
+
+            <div class="step-badge">Step 2 of 3 — Email Verification</div>
+
+            <div th:if="${error}" class="alert-danger" style="margin-bottom: 1.5rem;" th:text="${error}"></div>
+
+            <form th:action="@{/verify-otp}" method="post" style="text-align: left;">
+                <input type="hidden" name="email" th:value="${email}">
+                <div class="form-group" style="margin-bottom: 2rem;">
+                    <input type="text" name="otp" class="otp-input" maxlength="6" pattern="\d{6}" placeholder="------" required autofocus>
+                </div>
+                <div class="form-action">
+                    <button type="submit">Authenticate Token</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script th:src="@{/js/global.js}"></script>
+</body>
 </html>
