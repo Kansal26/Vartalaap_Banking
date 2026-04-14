@@ -36,7 +36,7 @@ public class SecurityConfig {
                 http
                                 .authorizeHttpRequests(auth -> auth
                                                 .requestMatchers("/", "/index", "/login", "/register", "/css/**", "/js/**", "/h2-console/**", "/images/**",
-                                                                "/forgot-password", "/verify-otp", "/reset-password")
+                                                                "/forgot-password", "/verify-otp", "/reset-password", "/api/health")
                                                 .permitAll()
 
                                                 .requestMatchers("/manager_dashboard", "/manager/**").hasRole("MANAGER")
