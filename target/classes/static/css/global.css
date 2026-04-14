@@ -162,6 +162,10 @@ body {
 .btn-success:hover::before { background: #30d158; }
 .btn-danger:hover::before { background: #ff453a; }
 
+.btn-primary:hover, .btn-success:hover, .btn-danger:hover {
+  color: #fff !important;
+}
+
 /* Exception for Toggle Password eye icon button */
 button.toggle-password, .toggle-password:hover {
   background: transparent !important;
@@ -222,6 +226,18 @@ input::placeholder, select::placeholder, textarea::placeholder {
   /* Inherits from base button styles */
   width: 100%;
   display: block;
+}
+
+/* Icon-only button override */
+.btn-icon {
+  padding: 0 !important;
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
 }
 
 /* Custom Cursor States */
