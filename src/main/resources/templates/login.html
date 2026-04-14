@@ -30,6 +30,17 @@
         margin-bottom: 2rem;
         width: 100%;
     }
+    .auth-slider .btn {
+        flex: 1;
+        background: transparent !important;
+        color: #fff !important;
+        border-color: rgba(255, 255, 255, 0.2) !important;
+    }
+    .auth-slider .btn.active {
+        background: #fff !important;
+        color: #000 !important;
+        border-color: #fff !important;
+    }
     .auth-panel {
         display: none;
         animation: fadeIn 0.4s ease forwards;
@@ -41,34 +52,6 @@
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(10px); }
         to { opacity: 1; transform: translateY(0); }
-    }
-    .bg-marquee-container {
-        width: 200vw;
-        overflow: hidden;
-        background: transparent;
-        position: fixed;
-        top: 50%;
-        left: -50vw;
-        transform: rotate(-5deg) translateY(-50%);
-        z-index: -1;
-        pointer-events: none;
-    }
-    .bg-marquee-content {
-        display: flex;
-        white-space: nowrap;
-        animation: scrollMarquee 60s linear infinite;
-        font-family: 'Syncopate', sans-serif;
-        font-size: 8rem;
-        font-weight: 800;
-        color: transparent;
-        -webkit-text-stroke: 2px rgba(255, 255, 255, 0.03);
-    }
-    .bg-marquee-content span {
-        margin: 0 30px;
-    }
-    @keyframes scrollMarquee {
-        0% { transform: translateX(0); }
-        100% { transform: translateX(-50%); }
     }
   </style>
 </head>
@@ -85,13 +68,7 @@
     <div class="glow-orb orb-2"></div>
     <div class="glow-orb orb-3"></div>
 
-    <div class="bg-marquee-container">
-        <div class="bg-marquee-content">
-            <!-- Repeated twice for seamless marquee loop -->
-            <span>SECURE AUTHENTICATION</span><span>//</span><span>VARTAALAP BANKING</span><span>//</span><span>ENCRYPTED PORTAL</span><span>//</span>
-            <span>SECURE AUTHENTICATION</span><span>//</span><span>VARTAALAP BANKING</span><span>//</span><span>ENCRYPTED PORTAL</span><span>//</span>
-        </div>
-    </div>
+
 
   <div class="app-container">
     <div class="card glass-3d hover-target tilt-card" style="padding: 3rem; max-width: 480px; width: 100%;">
@@ -101,8 +78,8 @@
       </div>
 
       <div class="auth-slider">
-         <button class="cinematic-btn hover-target" id="btn-login" onclick="toggleAuth('login')" style="background: #fff !important; color: #000 !important;">Login</button>
-         <button class="cinematic-btn hover-target" id="btn-register" onclick="toggleAuth('register')">Sign Up</button>
+         <button class="btn hover-target active" id="btn-login" onclick="toggleAuth('login')">Login</button>
+         <button class="btn hover-target" id="btn-register" onclick="toggleAuth('register')">Sign Up</button>
       </div>
 
       <div th:if="${param.error}" class="alert-danger" id="login-error-alert" style="margin-bottom: 1.5rem;">
@@ -140,7 +117,7 @@
             </div>
           </div>
           <div class="form-action" style="margin-top: 2rem;">
-            <button type="submit" class="cinematic-btn hover-target">Establish Secure Session</button>
+            <button type="submit" class="btn btn-primary hover-target">Establish Secure Session</button>
           </div>
         </form>
         <a th:href="@{/forgot-password}" class="forgot-password" style="margin-top: 1.5rem;">Restricted Access? Recover Password</a>
@@ -176,7 +153,7 @@
             </div>
           </div>
           <div class="form-action" style="margin-top: 2rem;">
-            <button type="submit" class="cinematic-btn hover-target">Establish Admin Credentials</button>
+            <button type="submit" class="btn btn-primary hover-target">Establish Admin Credentials</button>
           </div>
         </form>
       </div>
@@ -204,19 +181,15 @@
         const registerForm = document.getElementById('register-container');
         const formTitle = document.getElementById('form-title-h2');
 
-        // Cinematic active state overrides
-        const activeStyle = 'background: #fff !important; color: #000 !important; border-color: #fff !important;';
-        const inactiveStyle = 'background: transparent !important; color: #fff !important;';
-
         if(type === 'register') {
-            btnLogin.style.cssText = inactiveStyle;
-            btnRegister.style.cssText = activeStyle;
+            btnLogin.classList.remove('active');
+            btnRegister.classList.add('active');
             loginForm.classList.remove('active');
             registerForm.classList.add('active');
             formTitle.innerText = 'Platform Registration';
         } else {
-            btnRegister.style.cssText = inactiveStyle;
-            btnLogin.style.cssText = activeStyle;
+            btnRegister.classList.remove('active');
+            btnLogin.classList.add('active');
             registerForm.classList.remove('active');
             loginForm.classList.add('active');
             formTitle.innerText = 'Secure Portal Access';

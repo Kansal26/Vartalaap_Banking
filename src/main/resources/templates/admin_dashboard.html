@@ -8,8 +8,8 @@
     <!-- dashboard.css removed due to layout conflicts -->
     <style>
         :root {
-            --primary-indigo: #1e1b4b; /* Deeper Indigo */
-            --accent-gold: #94a3b8;    /* Muted Slate */
+            --primary-indigo: #1e1b4b;
+            --accent-gold: #94a3b8;
             --deep-bg: #0f172a;
             --sidebar-bg: rgba(10, 10, 10, 0.4);
             --content-bg: transparent;
@@ -93,17 +93,17 @@
 
         /* Sidebar Styles */
         .sidebar {
-        width: 280px;
-        flex-shrink: 0;
-        min-width: 280px;
-        background-color: transparent;
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
-        display: flex !important;
-        flex-direction: column;
-        padding: 1.5rem 0;
-        overflow-y: auto;
-        transition: all 0.3s ease;
-    }
+            width: 280px;
+            flex-shrink: 0;
+            min-width: 280px;
+            background-color: transparent;
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex !important;
+            flex-direction: column;
+            padding: 1.5rem 0;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+        }
 
         .sidebar-item {
             padding: 0.875rem 1.75rem;
@@ -228,16 +228,17 @@
         }
 
         .section-card {
-            background: var(--white);
+            background: rgba(255, 255, 255, 0.04);
             padding: 2.5rem;
             border-radius: 24px;
             box-shadow: var(--shadow-md);
             margin-bottom: 2.5rem;
-            border: 1px solid #f1f5f9;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
         }
 
         .section-card h2 {
-            color: var(--primary-indigo);
+            color: var(--white);
             font-size: 1.5rem;
             font-weight: 800;
             margin-top: 0;
@@ -369,29 +370,6 @@
         .role-MANAGER { background: #e0f2fe; color: #075985; }
         .role-USER { background: #eef2ff; color: #3730a3; }
 
-        .btn {
-            padding: 0.625rem 1.25rem;
-            border: none;
-            border-radius: 12px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-
-        .btn-primary { background: var(--primary-indigo); color: white; }
-        .btn-success { background: #16a34a; color: white; }
-        .btn-danger { background: #dc2626; color: white; }
-
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-
         .alert {
             padding: 1.25rem 1.5rem;
             margin-bottom: 2rem;
@@ -399,8 +377,8 @@
             font-weight: 600;
         }
 
-        .alert-success { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
-        .alert-danger { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .alert-success { background: rgba(22, 163, 74, 0.2); color: #4ade80; border: 1px solid rgba(22, 163, 74, 0.4); }
+        .alert-danger { background: rgba(220, 38, 38, 0.2); color: #f87171; border: 1px solid rgba(220, 38, 38, 0.4); }
 
         .sidebar.collapsed { width: 0; padding: 0; margin: 0; opacity: 0; }
 
@@ -411,8 +389,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.75);
-            backdrop-filter: blur(4px);
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(12px);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -421,22 +399,24 @@
         }
 
         .modal-card {
-            background: white;
+            background: #1e293b;
             border-radius: 24px;
             width: 90%;
             max-width: 450px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
             overflow: hidden;
             animation: slideUp 0.3s ease-out;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .modal-header {
             padding: 1.5rem 2rem;
-            background: #f8fafc;
-            border-bottom: 1px solid #e2e8f0;
+            background: rgba(15, 23, 42, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
+            color: #fff;
         }
 
         @keyframes slideUp {
@@ -460,8 +440,7 @@
     <header class="admin-header">
         <div class="header-left">
             <button id="mobileToggle" onclick="toggleMobileSidebar()">☰</button>
-            <button id="sidebarToggle" class="btn desktop-only"
-                style="background: rgba(255,255,255,0.1); color: white; font-size: 1.25rem; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.2);">
+            <button id="sidebarToggle" class="btn desktop-only">
                 ☰
             </button>
             <div style="display: flex; align-items: center; gap: 12px;">
@@ -527,8 +506,7 @@
                     </div>
                 </div>
                 <div style="margin-top: 1rem;">
-                    <button class="btn btn-primary" style="font-size: 0.85rem;" onclick="copyToClipboard()">Copy
-                        Details</button>
+                    <button class="btn btn-primary" onclick="copyToClipboard()">Copy Details</button>
                 </div>
             </div>
 
@@ -648,7 +626,7 @@
                                             <option th:selected="${user.role == 'ADMIN'}" value="ADMIN">Admin</option>
                                         </select>
                                         <button type="submit" class="btn btn-primary"
-                                            style="padding: 4px 12px; font-size: 0.9rem;">Update</button>
+                                            style="padding: 6px 16px; font-size: 0.8rem;">Update</button>
                                     </form>
                                 </td>
                                 <td>
@@ -715,7 +693,7 @@
                                 </div>
                             </div>
 
-                            <button type="submit" class="btn btn-primary" style="height:48px; font-weight:700; background:#60a5fa; color:#0f172a; width:100%; margin-top:0.5rem; border: none;">Add Field</button>
+                            <button type="submit" class="btn btn-primary">Add Field</button>
                         </form>
                     </div>
                     
@@ -855,16 +833,14 @@
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                         <input type="hidden" name="fieldId" th:value="${config.id}">
                                         <input type="hidden" name="fieldLabel" th:value="${config.fieldLabel}">
-                                        <button type="submit" class="btn btn-danger"
-                                            style="padding:4px 10px;font-size:0.82rem;">Remove</button>
+                                        <button type="submit" class="btn btn-danger">Remove</button>
                                     </form>
                                     <form th:unless="${config.enabled}" th:action="@{/admin/enable-field}" method="post"
                                         style="display:inline;" onsubmit="return handleAdminForm(event, 'Enable Core Field', 'Are you sure you want to re-activate this core field?', 'It will be visible to applicants again.')">
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                         <input type="hidden" name="fieldId" th:value="${config.id}">
                                         <input type="hidden" name="fieldLabel" th:value="${config.fieldLabel}">
-                                        <button type="submit" class="btn btn-success"
-                                            style="padding:4px 10px;font-size:0.82rem;">Re-enable</button>
+                                        <button type="submit" class="btn btn-success">Re-enable</button>
                                     </form>
                                 </td>
                             </tr>
@@ -884,8 +860,7 @@
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                         <input type="hidden" name="fieldId" th:value="${config.id}">
                                         <input type="hidden" name="fieldLabel" th:value="${config.fieldLabel}">
-                                        <button type="submit" class="btn btn-danger"
-                                            style="padding:4px 10px;font-size:0.82rem;">Delete</button>
+                                        <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
                                 </td>
                             </tr>
@@ -933,16 +908,14 @@
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                         <input type="hidden" name="fieldId" th:value="${config.id}">
                                         <input type="hidden" name="fieldLabel" th:value="${config.fieldLabel}">
-                                        <button type="submit" class="btn btn-danger"
-                                            style="padding:4px 10px;font-size:0.82rem;">Remove</button>
+                                        <button type="submit" class="btn btn-danger">Remove</button>
                                     </form>
                                     <form th:unless="${config.enabled}" th:action="@{/admin/enable-field}" method="post"
                                         style="display:inline;" onsubmit="return handleAdminForm(event, 'Enable Core Field', 'Are you sure you want to re-activate this core field?', 'It will be visible to applicants again.')">
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                         <input type="hidden" name="fieldId" th:value="${config.id}">
                                         <input type="hidden" name="fieldLabel" th:value="${config.fieldLabel}">
-                                        <button type="submit" class="btn btn-success"
-                                            style="padding:4px 10px;font-size:0.82rem;">Re-enable</button>
+                                        <button type="submit" class="btn btn-success">Re-enable</button>
                                     </form>
                                 </td>
                             </tr>
@@ -962,8 +935,7 @@
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                         <input type="hidden" name="fieldId" th:value="${config.id}">
                                         <input type="hidden" name="fieldLabel" th:value="${config.fieldLabel}">
-                                        <button type="submit" class="btn btn-danger"
-                                            style="padding:4px 10px;font-size:0.82rem;">Delete</button>
+                                        <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
                                 </td>
                             </tr>
@@ -1003,13 +975,13 @@
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                         <input type="hidden" name="fieldId" th:value="${config.id}">
                                         <input type="hidden" name="fieldLabel" th:value="${config.fieldLabel}">
-                                        <button type="submit" class="btn btn-danger" style="padding:4px 10px;font-size:0.82rem;">Remove</button>
+                                        <button type="submit" class="btn btn-danger">Remove</button>
                                     </form>
                                     <form th:unless="${config.enabled}" th:action="@{/admin/enable-field}" method="post" style="display:inline;" onsubmit="return confirm('Re-enable this core field?');">
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                         <input type="hidden" name="fieldId" th:value="${config.id}">
                                         <input type="hidden" name="fieldLabel" th:value="${config.fieldLabel}">
-                                        <button type="submit" class="btn btn-success" style="padding:4px 10px;font-size:0.82rem;">Re-enable</button>
+                                        <button type="submit" class="btn btn-success">Re-enable</button>
                                     </form>
                                 </td>
                             </tr>
@@ -1024,7 +996,7 @@
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                         <input type="hidden" name="fieldId" th:value="${config.id}">
                                         <input type="hidden" name="fieldLabel" th:value="${config.fieldLabel}">
-                                        <button type="submit" class="btn btn-danger" style="padding:4px 10px;font-size:0.82rem;">Delete</button>
+                                        <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
                                 </td>
                             </tr>
@@ -1064,13 +1036,13 @@
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                         <input type="hidden" name="fieldId" th:value="${config.id}">
                                         <input type="hidden" name="fieldLabel" th:value="${config.fieldLabel}">
-                                        <button type="submit" class="btn btn-danger" style="padding:4px 10px;font-size:0.82rem;">Remove</button>
+                                        <button type="submit" class="btn btn-danger">Remove</button>
                                     </form>
                                     <form th:unless="${config.enabled}" th:action="@{/admin/enable-field}" method="post" style="display:inline;" onsubmit="return confirm('Re-enable this core field?');">
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                         <input type="hidden" name="fieldId" th:value="${config.id}">
                                         <input type="hidden" name="fieldLabel" th:value="${config.fieldLabel}">
-                                        <button type="submit" class="btn btn-success" style="padding:4px 10px;font-size:0.82rem;">Re-enable</button>
+                                        <button type="submit" class="btn btn-success">Re-enable</button>
                                     </form>
                                 </td>
                             </tr>
@@ -1085,7 +1057,7 @@
                                         <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
                                         <input type="hidden" name="fieldId" th:value="${config.id}">
                                         <input type="hidden" name="fieldLabel" th:value="${config.fieldLabel}">
-                                        <button type="submit" class="btn btn-danger" style="padding:4px 10px;font-size:0.82rem;">Delete</button>
+                                        <button type="submit" class="btn btn-danger">Delete</button>
                                     </form>
                                 </td>
                             </tr>
@@ -1163,8 +1135,8 @@
                 <p id="adminConfirmSubtext" style="font-size: 0.95rem; color: var(--text-muted); margin-top: 12px;">This action cannot be undone easily.</p>
             </div>
             <div class="modal-footer" style="padding: 1.5rem 2rem; background: #f8fafc; border-top: 1px solid #e2e8f0; display: flex; gap: 12px; justify-content: center;">
-                <button type="button" class="btn" style="background:#e2e8f0; color:var(--text-main); flex:1; height:48px;" onclick="closeAdminConfirm()">Cancel</button>
-                <button type="button" id="adminConfirmBtn" class="btn btn-primary" style="flex:1; height:48px; background:var(--primary-indigo);">Confirm</button>
+                <button type="button" class="btn btn-danger" style="flex:1; height:48px;" onclick="closeAdminConfirm()">Cancel</button>
+                <button type="button" id="adminConfirmBtn" class="btn btn-primary" style="flex:1; height:48px;">Confirm</button>
             </div>
         </div>
     </div>

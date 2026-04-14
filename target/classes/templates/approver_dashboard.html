@@ -220,25 +220,7 @@
             overflow: hidden;
         }
 
-        .btn {
-            padding: 0.625rem 1.25rem;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
 
-        .btn-danger {
-            background-color: #ef4444;
-            color: white;
-            box-shadow: 0 4px 6px rgba(239, 68, 68, 0.2);
-        }
 
         .section-title {
             color: #ffffff;
@@ -291,17 +273,20 @@
 
         .status-btn {
             padding: 4px 12px;
-            border-radius: 8px;
-            border: none;
-            font-size: 0.75rem;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-size: 0.7rem;
             font-weight: 700;
             text-transform: uppercase;
             cursor: default;
+            color: #fff;
+            background: rgba(255, 255, 255, 0.1);
         }
 
-        .status-approved { background-color: #dcfce7; color: #166534; }
-        .status-pending { background-color: #fff7ed; color: #9a3412; }
-        .status-rejected { background-color: #fee2e2; color: #991b1b; }
+        .status-approved { border-color: #30d158; color: #30d158; }
+        .status-pending { border-color: #ff9f0a; color: #ff9f0a; }
+        .status-rejected { border-color: #ff453a; color: #ff453a; }
+        .status-investigate { border-color: #bf5af2; color: #bf5af2; }
 
         .text-green { color: #16a34a; font-weight: 700; }
         .text-red { color: #dc2626; font-weight: 700; }
@@ -381,24 +366,9 @@
         .filter-select:hover { border-color: #60a5fa; }
         .filter-select:focus { outline: none; }
 
-        .status-investigate { background-color: #fef3c7; color: #92400e; }
 
-        .review-button {
-            padding: 6px 16px;
-            background-color: #ffffff;
-            color: #000000;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 700;
-            font-size: 0.875rem;
-            transition: all 0.2s;
-        }
 
-        .review-button:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 6px rgba(255, 255, 255, 0.2);
-        }
+
 
         /* Premium Modal Styles */
         .overlay {
@@ -629,27 +599,7 @@
             gap: 12px;
         }
 
-        .approve-btn, .reject-btn, .investigate-btn {
-            padding: 0.875rem 1.75rem;
-            border: none;
-            border-radius: 14px;
-            cursor: pointer;
-            font-weight: 800;
-            color: white;
-            transition: all 0.2s;
-            font-size: 0.9375rem;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
 
-        .approve-btn { background: #059669; }
-        .reject-btn { background: #dc2626; }
-        .investigate-btn { background: #f59e0b; }
-
-        .approve-btn:hover { background: #047857; transform: translateY(-1px); }
-        .reject-btn:hover { background: #b91c1c; transform: translateY(-1px); }
-        .investigate-btn:hover { background: #d97706; transform: translateY(-1px); }
 
         .doc-badge {
             padding: 4px 10px;
@@ -713,8 +663,7 @@
     <header class="admin-header">
         <div class="header-left">
             <button id="mobileToggle" onclick="toggleMobileSidebar()">☰</button>
-            <button id="sidebarToggle" class="btn desktop-only"
-                style="background: rgba(255,255,255,0.1); color: white; font-size: 1.25rem; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.2);">
+            <button id="sidebarToggle" class="btn desktop-only">
                 ☰
             </button>
             <div style="display: flex; align-items: center; gap: 12px;">
@@ -776,7 +725,7 @@
                     <input type="text" name="region" style="width: 100%; box-sizing: border-box; padding: 0.75rem 1rem; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.2); background: rgba(255, 255, 255, 0.05); color: #ffffff; font-size: 0.875rem; font-weight: 600; outline: none; transition: 0.2s;" onfocus="this.style.borderColor='#60a5fa'" onblur="this.style.borderColor='rgba(255,255,255,0.2)'" th:value="${approverProfile.region}">
                 </div>
                 <div style="display: flex; align-items: flex-end;">
-                    <button type="submit" class="btn" style="background: #dcfce7; color: #166534; width: 100%; height: 45px;">Save Updates</button>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; height: 45px;">Save Updates</button>
                 </div>
             </div>
         </form>
@@ -863,7 +812,7 @@
                 th:classappend="${txn.complianceStatus=='Compliant'}? 'text-green' : 'text-red'"></td>
               <td th:text="${txn.approverRemark != null ? txn.approverRemark : '—'}"></td>
               <td>
-                <button class="review-button" onclick="showModal(this)" th:data-id="${txn.id}" data-scheme="apy"
+                <button class="btn btn-primary" onclick="showModal(this)" th:data-id="${txn.id}" data-scheme="apy"
                   data-schemename="Atal Pension Yojana" th:data-fullname="${txn.fullName}"
                   th:data-submittedon="${txn.submissionDate}" th:data-aadhar="${txn.aadharCard}"
                   th:data-amount="${txn.contriAmount}" th:data-additionaldata="${txn.additionalData}"
@@ -915,7 +864,7 @@
                 th:classappend="${txn.complianceStatus=='Compliant'}? 'text-green' : 'text-red'"></td>
               <td th:text="${txn.approverRemark != null ? txn.approverRemark : '—'}"></td>
               <td>
-                <button class="review-button" onclick="showModal(this)" th:data-id="${txn.requestID}"
+                <button class="btn btn-primary" onclick="showModal(this)" th:data-id="${txn.requestID}"
                   data-scheme="pmjjby" data-schemename="PMJJBY" th:data-fullname="${txn.fullName}"
                   th:data-submittedon="${txn.submissionDate}" th:data-aadhar="${txn.aadharCard}"
                   th:data-amount="${txn.amount}" th:data-additionaldata="${txn.additionalData}"
@@ -968,7 +917,7 @@
                 th:classappend="${txn.complianceStatus=='Compliant'}? 'text-green' : 'text-red'"></td>
               <td th:text="${txn.approverRemark != null ? txn.approverRemark : '—'}"></td>
               <td>
-                <button class="review-button" onclick="showModal(this)" th:data-id="${txn.requestID}"
+                <button class="btn btn-primary" onclick="showModal(this)" th:data-id="${txn.requestID}"
                   data-scheme="pmsby" data-schemename="PMSBY" th:data-fullname="${txn.fullName}"
                   th:data-submittedon="${txn.submissionDate}" th:data-aadhar="${txn.aadharCard}"
                   th:data-amount="${txn.amount}" th:data-additionaldata="${txn.additionalData}"
@@ -1021,7 +970,7 @@
                 th:classappend="${txn.complianceStatus=='Compliant'}? 'text-green' : 'text-red'"></td>
               <td th:text="${txn.approverRemark != null ? txn.approverRemark : '—'}"></td>
               <td>
-                <button class="review-button" onclick="showModal(this)" th:data-id="${txn.requestID}"
+                <button class="btn btn-primary" onclick="showModal(this)" th:data-id="${txn.requestID}"
                   data-scheme="kvp" data-schemename="Kisan Vikas Patra" th:data-fullname="${txn.fullName}"
                   th:data-submittedon="${txn.submissionDate}" th:data-aadhar="${txn.aadharCard}"
                   th:data-amount="${txn.depositAmount}" th:data-additionaldata="${txn.additionalData}"
@@ -1073,7 +1022,7 @@
               <td th:text="${txn.complianceStatus}"
                 th:classappend="${txn.complianceStatus=='Compliant'}? 'text-green' : 'text-red'"></td>
               <td>
-                <button class="review-button" onclick="showModal(this)" th:data-id="${txn.requestID}"
+                <button class="btn btn-primary" onclick="showModal(this)" th:data-id="${txn.requestID}"
                   data-scheme="pmmy" data-schemename="Mudra Yojana" th:data-fullname="${txn.fullName}"
                   th:data-submittedon="${txn.submissionDate}" th:data-aadhar="${txn.aadharCard}"
                   th:data-amount="${txn.loanAmount}" th:data-additionaldata="${txn.additionalData}"
@@ -1196,13 +1145,13 @@
         <input type="hidden" id="decisionRequestId" name="requestId" />
         <textarea style="display:none;" name="remark" id="hiddenRemark"></textarea>
         <div style="display: flex; gap: 12px;">
-          <button type="button" class="reject-btn" onclick="prepareSubmit('Rejected')">
+          <button type="button" class="btn btn-danger" onclick="prepareSubmit('Rejected')">
             Rejected
           </button>
-          <button type="button" class="investigate-btn" onclick="prepareSubmit('Investigate')">
+          <button type="button" class="btn btn-primary" style="border-color: #bf5af2 !important;" onclick="prepareSubmit('Investigate')">
             Investigate
           </button>
-          <button type="button" class="approve-btn" onclick="prepareSubmit('Approved')">
+          <button type="button" class="btn btn-success" onclick="prepareSubmit('Approved')">
             Verified
           </button>
         </div>
@@ -1223,7 +1172,7 @@
     </div>
     <div class="modal-footer" style="padding: 1.5rem; display: flex; justify-content: center; gap: 15px; background: #f8fafc; border-radius: 0 0 28px 28px;">
       <button type="button" class="tab" onclick="hideConfirmModal()" style="border: 1px solid #e2e8f0; cursor: pointer; padding: 0.875rem 2rem;">No, Go Back</button>
-      <button type="button" id="confirmFinalBtn" class="approve-btn" onclick="executeSubmit()" style="padding: 0.875rem 2.5rem;">Yes, Continue</button>
+      <button type="button" id="confirmFinalBtn" class="btn btn-success" onclick="executeSubmit()" style="padding: 0.875rem 2.5rem;">Yes, Continue</button>
     </div>
   </div>
 
@@ -1238,7 +1187,7 @@
       <p id="alertMessage" style="font-size: 1.125rem; color: var(--text-main); font-weight: 600;"></p>
     </div>
     <div class="modal-footer" style="padding: 1.5rem; display: flex; justify-content: center; background: #f8fafc; border-radius: 0 0 28px 28px;">
-      <button type="button" class="approve-btn" style="background: #1e1b4b;" onclick="hideAlertModal()">OK, Understood</button>
+      <button type="button" class="btn btn-primary" onclick="hideAlertModal()">OK, Understood</button>
     </div>
   </div>
 

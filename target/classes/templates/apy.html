@@ -140,24 +140,7 @@
       overflow: hidden;
     }
 
-    .btn {
-      padding: 0.625rem 1.25rem;
-      border: none;
-      border-radius: 10px;
-      cursor: pointer;
-      font-weight: 700;
-      font-size: 0.875rem;
-      transition: all 0.2s;
-    }
 
-    .btn-danger {
-      background-color: #ef4444;
-      color: white;
-    }
-
-    .btn-danger:hover {
-      background-color: #dc2626;
-    }
 
     /* Form Specific Styles */
     .form-group {
@@ -198,82 +181,13 @@
       box-shadow: 0 0 0 4px rgba(26, 35, 126, 0.05);
     }
 
-    .submit-button {
-      width: 100%;
-      height: 56px;
-      background: #1e1b4b; /* Solid deep indigo */
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-size: 1.1rem;
-      font-weight: 800;
-      cursor: pointer;
-      transition: all 0.2s;
-      margin-top: 1.5rem;
-      box-shadow: 0 4px 6px rgba(26, 35, 126, 0.2);
-    }
 
-    .submit-button:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 8px 15px rgba(26, 35, 126, 0.3);
-    }
 
-    .submit-button:active {
-      transform: translateY(0);
-    }
-
-    .custom-file-input {
-      display: none;
-    }
-
-    .custom-file-label {
-      display: inline-block;
-      padding: 10px 24px;
-      background-color: transparent;
-      color: var(--primary-indigo);
-      cursor: pointer;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 0.875rem;
-      border: 2px solid var(--primary-indigo);
-      transition: all 0.2s;
-    }
-
-    .custom-file-label:hover {
-      background-color: rgba(26, 35, 126, 0.05);
-    }
-
-    .upload-wrapper {
-      border: 2px dashed #e2e8f0;
-      background-color: #f8fafc;
-      padding: 2rem;
-      border-radius: 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      margin-top: 8px;
-    }
-
-    .cloud-icon {
-      width: 40px;
-      height: 40px;
-      fill: var(--text-muted);
-    }
-
-    .file-name {
-      display: block;
-      margin-top: 8px;
-      color: var(--primary-indigo);
-      font-weight: 600;
-      font-size: 0.875rem;
-    }
-
-    .required-star {
-      color: #ef4444;
-      margin-left: 4px;
-      font-weight: bold;
-    }
+        .required-star {
+            color: #ef4444;
+            margin-left: 4px;
+            font-weight: bold;
+        }
 
     /* Custom Modal Styles */
     .modal-overlay {
@@ -328,22 +242,7 @@
       margin-bottom: 2rem;
     }
 
-    .modal-btn {
-      width: 100%;
-      height: 48px;
-      background: var(--primary-indigo);
-      color: white;
-      border: none;
-      border-radius: 12px;
-      font-weight: 700;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
 
-    .modal-btn:hover {
-      background: #2d2a5d;
-      transform: translateY(-1px);
-    }
   </style>
   <script>
     (function () {
@@ -369,8 +268,7 @@
 
   <header class="admin-header">
     <div class="header-left">
-      <button id="sidebarToggle" class="btn"
-        style="background: rgba(255,255,255,0.1); color: white; font-size: 1.25rem; padding: 6px 12px; border: 1px solid rgba(255,255,255,0.2);">
+      <button id="sidebarToggle" class="btn">
         ☰
       </button>
       <div style="display: flex; align-items: center; gap: 12px;">
@@ -460,8 +358,7 @@
             <div style="display: flex; gap: 10px; align-items: center;">
               <input type="text" id="mobileNumber" placeholder="Enter mobile number" maxlength="10" minlength="10"
                 title="Phone Number must be 10 digits" pattern="\d{10}$" required style="flex: 1;" />
-              <button type="button" id="sendOtpBtn" onclick="sendOtp()" class="submit-button"
-                style="width: auto; padding: 0.6rem 1rem; font-size: 0.9rem; margin-top:0;">Send OTP</button>
+              <button type="button" id="sendOtpBtn" onclick="sendOtp()" class="btn btn-primary">Send OTP</button>
             </div>
           </div>
 
@@ -469,8 +366,7 @@
             <label>Enter OTP</label>
             <div style="display: flex; gap: 10px; align-items: center;">
               <input type="text" id="otpInput" placeholder="Enter 6-digit OTP" maxlength="6" style="flex: 1;" />
-              <button type="button" id="verifyOtpBtn" onclick="verifyOtp()" class="submit-button"
-                style="width: auto; padding: 0.6rem 1rem; font-size: 0.9rem; background-color: #059669; margin-top:0;">Verify</button>
+              <button type="button" id="verifyOtpBtn" onclick="verifyOtp()" class="btn btn-success">Verify</button>
             </div>
             <span id="otpMessage" style="font-size: 0.85rem; margin-top: 5px; display: block;"></span>
           </div>
@@ -491,35 +387,32 @@
           <!-- Document Uploads -->
           <div class="form-group">
             <label>Aadhaar Card Copy</label>
-            <div class="upload-wrapper">
-              <svg class="cloud-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-              <label for="aadharDoc" class="custom-file-label">Upload Aadhaar Card</label>
-              <input type="file" id="aadharDoc" name="aadharDoc" class="custom-file-input" />
-              <span id="aadharFileName" class="file-name"></span>
+            <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px;">
+              <label for="aadharDoc" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.75rem;">Upload Aadhaar</label>
+              <input type="file" id="aadharDoc" name="aadharDoc" hidden />
+              <span id="aadharFileName" style="font-size: 0.85rem; color: #cbd5e1;"></span>
             </div>
           </div>
 
           <div class="form-group">
             <label>PAN Card Copy</label>
-            <div class="upload-wrapper">
-              <svg class="cloud-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-              <label for="panDoc" class="custom-file-label">Upload PAN Card</label>
-              <input type="file" id="panDoc" name="panDoc" class="custom-file-input" />
-              <span id="panFileName" class="file-name"></span>
+            <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px;">
+              <label for="panDoc" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.75rem;">Upload PAN Card</label>
+              <input type="file" id="panDoc" name="panDoc" hidden />
+              <span id="panFileName" style="font-size: 0.85rem; color: #cbd5e1;"></span>
             </div>
           </div>
 
           <div class="form-group">
             <label>Cancelled Cheque</label>
-            <div class="upload-wrapper">
-              <svg class="cloud-icon" viewBox="0 0 24 24"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
-              <label for="cancelledChequeDoc" class="custom-file-label">Upload Cancelled Cheque</label>
-              <input type="file" id="cancelledChequeDoc" name="cancelledChequeDoc" class="custom-file-input" />
-              <span id="cancelledChequeFileName" class="file-name"></span>
+            <div style="display: flex; gap: 10px; align-items: center; margin-top: 8px;">
+              <label for="cancelledChequeDoc" class="btn btn-primary" style="padding: 10px 20px; font-size: 0.75rem;">Upload Cheque</label>
+              <input type="file" id="cancelledChequeDoc" name="cancelledChequeDoc" hidden />
+              <span id="cancelledChequeFileName" style="font-size: 0.85rem; color: #cbd5e1;"></span>
             </div>
           </div>
 
-          <button type="submit" id="submitBtn" class="submit-button">Submit Registration</button>
+          <button type="submit" id="submitBtn" class="btn btn-primary" style="width: 100%; margin-top: 2rem;">Submit Registration</button>
         </form>
       </div>
     </main>
@@ -530,7 +423,7 @@
     <div class="modal-content">
       <div class="modal-title">Notification</div>
       <div id="modalMessage" class="modal-message"></div>
-      <button onclick="closeModal()" class="modal-btn">Got it</button>
+      <button onclick="closeModal()" class="btn btn-primary">Got it</button>
     </div>
   </div>
 

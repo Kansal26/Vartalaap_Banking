@@ -107,20 +107,60 @@ body {
   z-index: 1;
 }
 
-/* Global Button Restyling */
-.btn, button, input[type="submit"], .btn-primary, .btn-primary:hover {
+/* Global Button Restyling - Cinematic Standard */
+.btn, button, input[type="submit"], .btn-primary, .btn-success, .btn-danger {
   cursor: none !important; /* using custom cursor */
-  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple)) !important;
+  font-family: 'Syncopate', sans-serif !important;
+  text-transform: uppercase;
+  font-size: 0.8rem !important;
+  letter-spacing: 2px;
+  padding: 14px 28px;
+  border: 1px solid rgba(255,255,255,0.3) !important;
+  border-radius: 50px !important;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+  position: relative;
+  overflow: hidden;
+  background: transparent !important;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  z-index: 1;
   color: #fff !important;
-  border: none !important;
-  box-shadow: 0 4px 15px rgba(10, 132, 255, 0.4) !important;
-  transition: transform 0.2s, box-shadow 0.2s !important;
+  text-decoration: none;
+}
+
+.btn::before, button::before, input[type="submit"]::before {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #fff;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: -1;
 }
 
 .btn:hover, button:hover, input[type="submit"]:hover {
+  color: #000 !important;
+  border-color: #fff !important;
   transform: translateY(-2px) !important;
-  box-shadow: 0 8px 20px rgba(191, 90, 242, 0.6) !important;
+  box-shadow: 0 10px 20px rgba(255, 255, 255, 0.1) !important;
 }
+
+.btn:hover::before, button:hover::before, input[type="submit"]:hover::before {
+  top: 0;
+}
+
+/* Color Variant Overrides */
+.btn-primary { border-color: var(--accent-blue) !important; }
+.btn-success { border-color: #30d158 !important; }
+.btn-danger { border-color: #ff453a !important; }
+
+.btn-primary:hover::before { background: var(--accent-blue); }
+.btn-success:hover::before { background: #30d158; }
+.btn-danger:hover::before { background: #ff453a; }
 
 /* Exception for Toggle Password eye icon button */
 button.toggle-password, .toggle-password:hover {
@@ -177,45 +217,11 @@ input::placeholder, select::placeholder, textarea::placeholder {
   opacity: 1 !important;
 }
 
+/* cinematic-btn is now the standard for all buttons via the base styles above */
 .cinematic-btn {
-  font-family: 'Syncopate', sans-serif !important;
-  text-transform: uppercase;
-  font-size: 0.8rem !important;
-  letter-spacing: 2px;
-  color: #fff !important;
-  text-decoration: none;
-  padding: 18px 30px;
-  border: 1px solid rgba(255,255,255,0.3) !important;
-  border-radius: 50px !important;
-  transition: all 0.3s;
-  position: relative;
-  overflow: hidden;
-  background: transparent !important;
+  /* Inherits from base button styles */
   width: 100%;
   display: block;
-  text-align: center;
-  cursor: pointer;
-  z-index: 1;
-}
-
-.cinematic-btn::before {
-  content: '';
-  position: absolute;
-  top: 100%;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: #fff;
-  transition: all 0.3s;
-  z-index: -1;
-}
-
-.cinematic-btn:hover {
-  color: #000 !important;
-  border-color: #fff !important;
-}
-.cinematic-btn:hover::before {
-  top: 0;
 }
 
 /* Custom Cursor States */
