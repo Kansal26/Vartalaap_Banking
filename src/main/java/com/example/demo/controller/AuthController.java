@@ -170,7 +170,7 @@ public class AuthController {
         if (cancelledChequeDoc != null && !cancelledChequeDoc.isEmpty()) { form.setCancelledChequeDocPath(saveFile(cancelledChequeDoc)); }
 
         apyFormRepository.save(form);
-        redirectAttributes.addFlashAttribute("success", true);
+        redirectAttributes.addFlashAttribute("success", "Action completed successfully!");
         return "redirect:/dashboard";
     }
 
@@ -210,7 +210,7 @@ public class AuthController {
         if (cancelledChequeDoc != null && !cancelledChequeDoc.isEmpty()) { form.setCancelledChequeDocPath(saveFile(cancelledChequeDoc)); }
 
         pmjjbyFormRepository.save(form);
-        redirectAttributes.addFlashAttribute("success", true);
+        redirectAttributes.addFlashAttribute("success", "Action completed successfully!");
         return "redirect:/dashboard";
     }
 
@@ -250,7 +250,7 @@ public class AuthController {
         if (cancelledChequeDoc != null && !cancelledChequeDoc.isEmpty()) { form.setCancelledChequeDocPath(saveFile(cancelledChequeDoc)); }
 
         pmsbyFormRepository.save(form);
-        redirectAttributes.addFlashAttribute("success", true);
+        redirectAttributes.addFlashAttribute("success", "Action completed successfully!");
         return "redirect:/dashboard";
     }
 
@@ -283,7 +283,7 @@ public class AuthController {
         if (cancelledChequeDoc != null && !cancelledChequeDoc.isEmpty()) { form.setCancelledChequeDocPath(saveFile(cancelledChequeDoc)); }
 
         kvpFormRepository.save(form);
-        redirectAttributes.addFlashAttribute("success", true);
+        redirectAttributes.addFlashAttribute("success", "Action completed successfully!");
         return "redirect:/dashboard";
     }
 
@@ -318,7 +318,7 @@ public class AuthController {
         if (geotaggedPhoto != null && !geotaggedPhoto.isEmpty()) { form.setGeotaggedPhotoPath(saveFile(geotaggedPhoto)); }
 
         pmmyFormRepository.save(form);
-        redirectAttributes.addFlashAttribute("success", true);
+        redirectAttributes.addFlashAttribute("success", "Action completed successfully!");
         return "redirect:/dashboard";
     }
 
@@ -363,8 +363,7 @@ public class AuthController {
     @GetMapping("/dashboard")
     public String dashboard(@RequestParam(defaultValue = "All") String status,
             Model model,
-            Authentication authentication,
-            @ModelAttribute("success") Object success) {
+            Authentication authentication) {
         List<ApyDTO> apyTransactions = apyService.getAllApyTransactions();
         List<PmjjbyDTO> pmjjbyTransactions = pmjjbyService.getAllPmjjbyTransactions();
         List<PmsbyDTO> pmsbyTransactions = pmsbyService.getAllPmsbyTransactions();
@@ -392,7 +391,6 @@ public class AuthController {
         model.addAttribute("kvpTransactions", kvpTransactions);
         model.addAttribute("pmmyTransactions", pmmyTransactions);
         model.addAttribute("selectedStatus", status);
-        model.addAttribute("success", success);
 
         // Fetch User and set Branch Name
         User user = userRepository.findByUsername(currentUser);
@@ -475,7 +473,7 @@ public class AuthController {
             RedirectAttributes redirectAttributes) {
         boolean updated = updateStatusAndRemark(scheme, id, action, remark);
         if (updated) {
-            redirectAttributes.addFlashAttribute("success", true);
+            redirectAttributes.addFlashAttribute("success", "Action completed successfully!");
         } else {
             redirectAttributes.addFlashAttribute("error", "Failed to update the transaction.");
         }
@@ -507,6 +505,9 @@ public class AuthController {
 
     @GetMapping("/role-redirect")
     public String redirectBasedOnRole(Authentication auth) {
+        if (auth == null || !auth.isAuthenticated()) {
+            return "redirect:/login";
+        }
         if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))) {
             return "redirect:/admin";
         } else if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_USER") || a.getAuthority().equals("ROLE_MAKER"))) {
@@ -518,5 +519,47 @@ public class AuthController {
         } else {
             return "redirect:/login?error";
         }
+    }
+
+    @GetMapping("/account-settings")
+    public String accountSettings(Authentication authentication, Model model) {
+        if (authentication != null && authentication.isAuthenticated()) {
+            User user = userRepository.findByUsername(authentication.getName());
+            model.addAttribute("userProfile", user);
+            return "account_settings";
+        }
+        return "redirect:/login";
+    }
+
+    @PostMapping("/change-password")
+    public String changePassword(@RequestParam String currentPassword,
+                                 @RequestParam String newPassword,
+                                 @RequestParam String confirmPassword,
+                                 Authentication authentication,
+                                 RedirectAttributes redirectAttributes) {
+        if (authentication == null || !authentication.isAuthenticated()) {
+            return "redirect:/login";
+        }
+        
+        User user = userRepository.findByUsername(authentication.getName());
+        if (user == null) {
+            return "redirect:/login";
+        }
+
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            redirectAttributes.addFlashAttribute("error", "Current password is incorrect.");
+            return "redirect:/account-settings";
+        }
+
+        if (!newPassword.equals(confirmPassword)) {
+            redirectAttributes.addFlashAttribute("error", "New passwords do not match.");
+            return "redirect:/account-settings";
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        
+        redirectAttributes.addFlashAttribute("success", "Password successfully changed!");
+        return "redirect:/account-settings";
     }
 }
