@@ -1,12 +1,12 @@
-# 🏦 Vartalaap Banking Portal
+# Vartalaap Banking Portal
 
-Vartalaap is a web portal built with Spring Boot designed to help bank branches manage and track applications for central government social security schemes (specifically APY, PMJJBY, PMSBY, KVP, and PMMY). 
+Vartalaap is a web portal built on Spring Boot that helps bank branches digitize and track applications for central government social security schemes—specifically APY, PMJJBY, PMSBY, KVP, and PMMY. 
 
 Rather than relying on manual paperwork, the system digitizes the entire lifecycle using a Maker-Checker workflow. Data entered at the branch level (by a Maker) goes through a formal audit and review process by a supervisor (Checker) before being approved. It also features a dynamic form engine that lets administrators toggle or add custom form fields on the fly without editing code or redeploying the service.
 
 ---
 
-## 📐 How the System is Structured
+## How the System is Structured
 
 ### 1. High-Level Architecture
 The application follows a standard layered architecture. Requests pass through Spring Security for authentication and role redirection, hit the MVC controllers, invoke business logic in the services layer, and query the database via Spring Data JPA.
@@ -69,8 +69,8 @@ graph TD
     AC -->|File Writes| FS
 ```
 
-### 2. Application Workflow (State Machine)
-To prevent unauthorized submissions, each scheme application moves through the following stages:
+### 2. Application Workflow & State Transitions
+To maintain audit logs and prevent internal fraud, every application follows a single-direction state machine:
 
 ```mermaid
 stateDiagram-v2
@@ -91,73 +91,90 @@ stateDiagram-v2
 
 ---
 
-## 🌟 Core Modules & Features
+## Deep Dive: Key Engineering Solutions
 
-### ⚙️ The Dynamic Form Engine
-Instead of hardcoding form inputs for every scheme, the UI is built dynamically using configs stored in the database (`FormConfig` table).
+### 1. The Dynamic Form Engine (No-Migration Schema Strategy)
+If you've ever worked with government forms, you know they change constantly. Adding a database column and redeploying the app every time a form gets a new checkbox is a nightmare. 
 
-*   **Static Fields**: Standard fields (like Name, DOB, Aadhar Number). Admins can enable or disable these globally.
-*   **Dynamic Fields**: Custom inputs (such as specific branch declarations or extra checkboxes) added by Admins for specific branches.
-*   **JSON Storage**: When a form is submitted, client-side scripts package all custom field values into a single JSON object. This object is saved directly into the `additional_data` column of the scheme's database table, keeping the schema clean.
+To solve this, we built a hybrid database structure:
+*   **Static Columns**: Standard fields like name, Aadhar number, and phone number are mapped to actual database columns in their respective entities (e.g., `ApyForm`, `KvpForm`).
+*   **Dynamic Configurations**: The `FormConfig` table stores custom fields added by admins (such as "Is the applicant a taxpayer?").
+*   **Client-Side Serialization**: In the Thymeleaf templates, we load static inputs, fetch the branch's custom `FormConfig` entries, and render them. When the Maker clicks "Submit", a JavaScript script intercepts the submit event, gathers all dynamic inputs, serializes them into a single JSON string, and places it into a hidden input mapped to the entity's `additional_data` column.
+*   **Deserialization**: When the Checker reviews the form, the controller reads the JSON string from `additional_data` and parses it back into readable key-value pairs in the UI.
 
-### 👥 User Roles & Access Control
-Access to pages and actions is restricted based on user roles configured via Spring Security:
+### 2. Document Upload Pipeline
+To avoid storing heavy binary assets (Aadhar copies, PAN cards, cancelled cheques) directly inside the relational database, we use a local filesystem store:
+*   The upload controller (`AuthController.saveFile`) intercepts binary files via `MultipartFile`.
+*   To prevent file name collisions (e.g., two users uploading a file named `aadhar.jpg`), we generate a unique UUID and prepend it to the file name (`UUID + "_" + originalFileName`).
+*   The file is saved to the local `uploads/` directory on the server.
+*   Only the relative file path string (e.g., `/uploads/3f82..._aadhar.jpg`) is saved in the database. When the Checker views the application, Thymeleaf maps this path to render the document preview directly in the browser.
 
-| Role | Security Authority | Main Responsibility |
-| :--- | :--- | :--- |
-| **Maker (User)** | `ROLE_MAKER` or `ROLE_USER` | Accesses the main user dashboard. Fills out forms, uploads documents, triggers mock OTP verifications, and tracks application status. |
-| **Checker** | `ROLE_APPROVER` | Accesses the approver dashboard. Inspects submitted forms and uploaded documents, and decides to approve or reject them. |
-| **Branch Admin** | `ROLE_ADMIN` | Accesses admin settings. Registers new branch accounts, changes roles, triggers automated temp password emails, and configures form layouts. |
-| **Manager** | `ROLE_MANAGER` | Accesses the manager dashboard. Looks at analytical reports and performance metrics across different branches. |
+### 3. SMS & OTP Verification Dispatcher
+To mock real banking OTP behaviors (like UIDAI Aadhar verification or secure logins), we built a pluggable SMS service:
+*   In `application.properties`, you can configure `sms.provider`.
+*   If set to `mock`, the `MockSmsService` intercepts the request and prints the generated OTP to the standard out terminal logs. This makes local testing free and simple since you don't need active network connectivity or API keys.
+*   If set to `fast2sms`, the application switches to `Fast2SmsService`, sending real SMS messages using their REST API endpoints.
 
 ---
 
-## 📂 Codebase Directory Layout
+## User Roles & Access Management
+
+Spring Security controls path-level access based on roles pre-configured during startup:
+
+| Role | Authority | Responsibilities |
+| :--- | :--- | :--- |
+| **Maker (User)** | `ROLE_MAKER` or `ROLE_USER` | Accesses `/dashboard`. Enters applicant details, triggers UIDAI verification, uploads files, and views status history. |
+| **Checker** | `ROLE_APPROVER` | Accesses `/approver_dashboard`. Reviews pending applications, examines document uploads, and flags entries as `APPROVED` or `REJECTED` with notes. |
+| **Branch Admin** | `ROLE_ADMIN` | Accesses `/admin`. Provisions new user accounts, toggles scheme fields, and triggers password recovery flows. |
+| **Manager** | `ROLE_MANAGER` | Accesses `/manager_dashboard`. Views metrics across all branch locations and exports consolidated reports. |
+
+---
+
+## Codebase Directory Layout
 
 ```
-├── AlterDb.java                # Database helper script for manual schema changes
-├── Dockerfile                  # Multi-stage build configuration for Docker containerization
-├── pom.xml                     # Maven dependencies and project config
-├── uploads/                    # Directory where user-uploaded documents are stored locally
-├── data/                       # Local directory storing the file-based H2 database
+├── AlterDb.java                # Helper script to modify the database structure manually
+├── Dockerfile                  # Multi-stage build setup to bundle and package the app in a container
+├── pom.xml                     # Maven project configuration and dependencies
+├── uploads/                    # Folder where uploaded PDF and image documents are stored
+├── data/                       # Directory where the H2 file-based database is stored locally
 └── src/
     └── main/
         ├── java/com/example/demo/
-        │   ├── DemoApplication.java    # App entrypoint & automatic user seeder
-        │   ├── config/                 # Security, Async, and Web config files
-        │   ├── controller/             # Controllers handling routes and API requests
-        │   ├── dto/                    # Data Transfer Objects for reports and dashboards
+        │   ├── DemoApplication.java    # App entrypoint and seeding script for test accounts
+        │   ├── config/                 # Configurations for security, web filters, and async executors
+        │   ├── controller/             # Route handlers and API controller classes
+        │   ├── dto/                    # Data Transfer Objects used to compile dashboard stats
         │   ├── model/                  # JPA Entity definitions (User, FormConfig, Schemes)
-        │   ├── repository/             # Database access interfaces
-        │   └── service/                # Business logic (exports, email, mock SMS, etc.)
+        │   ├── repository/             # JPA database query interfaces
+        │   └── service/                # Business logic classes (Excel export, email SMTP, SMS dispatchers)
         └── resources/
-            ├── application.properties  # Main configuration file (DB credentials, email ports)
-            ├── static/                 # Static assets (CSS, custom JS, images)
-            └── templates/              # HTML layout templates rendered by Thymeleaf
+            ├── application.properties  # Main configuration file (SMTP server setup, db paths)
+            ├── static/                 # Static files (CSS, client-side JS libraries)
+            └── templates/              # HTML layout views
 ```
 
 ---
 
-## 🛠️ How to Get Started
+## Running the Project
 
 ### Prerequisites
-*   **Java**: JDK 17 (or newer)
+*   **Java Runtime**: JDK 17 (or newer)
 *   **Build tool**: Maven 3.x
 
-### 1. Build and Run Locally
-You can build the project and launch the embedded Tomcat server using these commands:
+### 1. Running Locally
+Build the packages and spin up the embedded Tomcat server:
 ```bash
-# Build and download dependencies
+# Clean project and download all dependencies
 mvn clean install
 
 # Start the application
 mvn spring-boot:run
 ```
+Open **`http://localhost:8080`** in your web browser.
 
-Once started, the app runs on port `8080`. Open **`http://localhost:8080`** in your browser.
-
-### 2. Running with a Production Database (Optional)
-By default, the application runs on a local, zero-setup file database (`data/demo`). If you want to connect to a production database (like PostgreSQL), pass the credentials via environment variables when launching:
+### 2. Switching to PostgreSQL (Optional)
+By default, the application runs on a local H2 file database (`data/demo`). If you want to connect to a production instance of PostgreSQL, pass the datasource variables through the environment:
 
 ```bash
 export DB_URL=jdbc:postgresql://your-db-host:5432/vartalaap_db
@@ -171,27 +188,27 @@ mvn spring-boot:run
 
 ---
 
-## 🔐 Default Test Accounts
+## Pre-seeded Credentials for Local Testing
 
-To make it easy to explore the different dashboards, the application automatically seeds these test accounts on startup (defined in [DemoApplication.java](file:///Users/adikansal2608/Desktop/Vartalaap%20Banking/src/main/java/com/example/demo/DemoApplication.java)):
+When the application boots, it automatically creates three accounts if they don't already exist so you don't have to register manually (see [DemoApplication.java](file:///Users/adikansal2608/Desktop/Vartalaap%20Banking/src/main/java/com/example/demo/DemoApplication.java)):
 
-*   **Administrator Account** (Manage users/forms):
+*   **Administrator Account**:
     *   **Username**: `admin`
     *   **Password**: `admin123`
-*   **Maker Account** (Submit applications):
+*   **Maker Account**:
     *   **Username**: `maker01`
     *   **Password**: `maker123`
-*   **Checker Account** (Approve/Reject applications):
+*   **Checker Account**:
     *   **Username**: `approver01`
     *   **Password**: `approver123`
 
 ---
 
-## 📁 Diagnostic Tools & Utilities
+## Diagnostic Tools
 
-*   **H2 Database Console**: Query the database tables directly at `http://localhost:8080/h2-console`
+*   **H2 Database Interface**: Query active tables directly at `http://localhost:8080/h2-console`
     *   *JDBC URL*: `jdbc:h2:file:./data/demo`
     *   *User*: `sa`
     *   *Password*: *(leave blank)*
-*   **Health Check Endpoint**: Simple API to verify that the app is responding and connected to the database
+*   **App Health Check**: Simple JSON service checking database connectivity
     *   *URL*: `http://localhost:8080/api/health`
