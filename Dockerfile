@@ -24,4 +24,5 @@ RUN mkdir -p /app/data /app/uploads
 EXPOSE 8080
 
 # Run the application with memory constraints
-ENTRYPOINT ["java", "-Xmx300m", "-jar", "app.jar"]
+# (Auto-converts Render's postgres:// DATABASE_URL to a Spring Boot jdbc:postgresql:// DB_URL)
+ENTRYPOINT ["sh", "-c", "if [ ! -z \"$DATABASE_URL\" ]; then export DB_URL=$(echo $DATABASE_URL | sed 's/postgres:\\/\\//jdbc:postgresql:\\/\\//'); fi && java -Xmx300m -jar app.jar"]
