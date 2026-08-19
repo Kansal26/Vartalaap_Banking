@@ -6,7 +6,8 @@ WORKDIR /app
 COPY pom.xml .
 COPY src ./src
 
-# Package the application
+# Package the application (with memory limits for Render free tier)
+ENV MAVEN_OPTS="-Xmx256m"
 RUN mvn clean package -DskipTests
 
 # Stage 2: Runtime stage
@@ -22,5 +23,5 @@ RUN mkdir -p /app/data /app/uploads
 # Expose the application port
 EXPOSE 8080
 
-# Run the application
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Run the application with memory constraints
+ENTRYPOINT ["java", "-Xmx300m", "-jar", "app.jar"]
