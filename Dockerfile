@@ -24,5 +24,5 @@ RUN mkdir -p /app/data /app/uploads
 EXPOSE 8080
 
 # Run the application with memory constraints
-# (Auto-converts Render's DATABASE_URL to a Spring Boot jdbc URL and sets Postgres dialects)
-ENTRYPOINT ["sh", "-c", "if [ ! -z \"$DATABASE_URL\" ]; then export DB_URL=$(echo $DATABASE_URL | sed 's/^postgres.*:\\/\\//jdbc:postgresql:\\/\\//'); export DB_DRIVER=org.postgresql.Driver; export DB_DIALECT=org.hibernate.dialect.PostgreSQLDialect; fi && java -Xmx300m -jar app.jar"]
+# (Constructs a clean Spring Boot jdbc URL from Render DB components)
+ENTRYPOINT ["sh", "-c", "if [ ! -z \"$DB_HOST\" ]; then export DB_URL=jdbc:postgresql://$DB_HOST:$DB_PORT/$DB_NAME; export DB_DRIVER=org.postgresql.Driver; export DB_DIALECT=org.hibernate.dialect.PostgreSQLDialect; fi && java -Xmx300m -jar app.jar"]
