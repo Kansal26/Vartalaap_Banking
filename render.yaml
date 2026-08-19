@@ -17,6 +17,10 @@ services:
         fromDatabase:
           name: vartalaap-db-blue
           property: password
+      - key: DB_DRIVER
+        value: org.postgresql.Driver
+      - key: DB_DIALECT
+        value: org.hibernate.dialect.PostgreSQLDialect
 
 databases:
   - name: vartalaap-db-blue
