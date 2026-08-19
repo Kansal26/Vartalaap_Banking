@@ -5,18 +5,10 @@ services:
     region: singapore
     plan: free
     envVars:
-      - key: DB_HOST
+      - key: DATABASE_URL
         fromDatabase:
           name: vartalaap-db-blue
-          property: host
-      - key: DB_PORT
-        fromDatabase:
-          name: vartalaap-db-blue
-          property: port
-      - key: DB_NAME
-        fromDatabase:
-          name: vartalaap-db-blue
-          property: database
+          property: connectionString
       - key: DB_USERNAME
         fromDatabase:
           name: vartalaap-db-blue
