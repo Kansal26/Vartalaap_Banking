@@ -355,7 +355,7 @@
 
           <div class="form-group" th:if="${enabledFields.contains('mobileNumber')}">
             <label>Mobile Number<span class="required-star">*</span></label>
-            <input type="text" id="mobileNumber" th:field="*{mobileNumber}" placeholder="Enter mobile number" maxlength="10" minlength="10"
+            <input type="text" id="mobileNumber" name="mobileNumber" placeholder="Enter mobile number" maxlength="10" minlength="10"
               title="Phone Number must be 10 digits" pattern="^\d{10}$" required />
           </div>
           <!-- Dynamic Fields -->
