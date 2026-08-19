@@ -363,19 +363,7 @@
 
           <div class="form-group" th:if="${enabledFields.contains('mobileNumber')}">
             <label>Mobile Number<span class="required-star">*</span></label>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <input type="text" id="mobileNumber" th:field="*{mobileNumber}" placeholder="Enter 10-digit mobile number" pattern="\d{10}$" maxlength="10" minlength="10" required style="flex: 1;" />
-              <button type="button" id="sendOtpBtn" onclick="sendOtp()" class="btn btn-primary">Send OTP</button>
-            </div>
-          </div>
-
-          <div class="form-group" id="otpSection" style="display: none;">
-            <label>Enter OTP</label>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <input type="text" id="otpInput" placeholder="Enter 6-digit OTP" maxlength="6" style="flex: 1;" />
-              <button type="button" id="verifyOtpBtn" onclick="verifyOtp()" class="btn btn-success">Verify</button>
-            </div>
-            <span id="otpMessage" style="font-size: 0.85rem; margin-top: 5px; display: block;"></span>
+            <input type="text" id="mobileNumber" th:field="*{mobileNumber}" placeholder="Enter 10-digit mobile number" pattern="^\d{10}$" maxlength="10" minlength="10" required />
           </div>
           <div class="form-group" th:each="config : ${formConfigs}">
             <label>
@@ -464,68 +452,6 @@
       }
     });
 
-    let isOtpVerified = false;
-
-    function sendOtp() {
-      const mobileNumber = document.getElementById('mobileNumber').value;
-      if (!/^\d{10}$/.test(mobileNumber)) {
-        alert("Please enter a valid 10-digit mobile number.");
-        return;
-      }
-      const sendBtn = document.getElementById('sendOtpBtn');
-      sendBtn.disabled = true;
-      sendBtn.textContent = "Sending...";
-
-      const csrfToken = document.querySelector('input[name="_csrf"]')?.value || '';
-
-      fetch('/api/otp/send?phoneNumber=' + mobileNumber, {
-        method: 'POST',
-        headers: { 'X-CSRF-TOKEN': csrfToken }
-      })
-      .then(res => res.json())
-      .then(data => {
-        document.getElementById('otpSection').style.display = 'block';
-        sendBtn.textContent = "Resend OTP";
-        sendBtn.disabled = false;
-        // Native alert removed as per persistent demo card
-        console.log("Demo OTP:", data.otp);
-      })
-      .catch(() => {
-        showCustomAlert("Failed to send OTP");
-        sendBtn.disabled = false;
-        sendBtn.textContent = "Send OTP";
-      });
-    }
-
-    function verifyOtp() {
-      const mobileNumber = document.getElementById('mobileNumber').value;
-      const otp = document.getElementById('otpInput').value;
-      const messageSpan = document.getElementById('otpMessage');
-      const csrfToken = document.querySelector('input[name="_csrf"]')?.value || '';
-
-      fetch('/api/otp/verify?phoneNumber=' + mobileNumber + '&otp=' + otp, {
-        method: 'POST',
-        headers: { 'X-CSRF-TOKEN': csrfToken }
-      })
-      .then(res => res.json())
-      .then(data => {
-        if (data.success) {
-          isOtpVerified = true;
-          showCustomAlert("✅ OTP Verified Successfully!");
-          messageSpan.textContent = "✅ OTP Verified Successfully!";
-          messageSpan.style.color = "green";
-          document.getElementById('verifyOtpBtn').disabled = true;
-          document.getElementById('otpInput').disabled = true;
-          document.getElementById('mobileNumber').readOnly = true;
-          document.getElementById('sendOtpBtn').style.display = 'none';
-        } else {
-          showCustomAlert("❌ Invalid OTP. Please try again.");
-          messageSpan.textContent = "❌ Invalid OTP. Please try again.";
-          messageSpan.style.color = "red";
-        }
-      });
-    }
-
     function setupFileDisplay(inputId, spanId) {
       const input = document.getElementById(inputId);
       const span = document.getElementById(spanId);
@@ -544,11 +470,6 @@
         e.preventDefault();
         showCustomAlert("Please fill all mandatory fields marked with a red star (*).");
         return;
-      }
-      
-      if (!isOtpVerified) {
-        e.preventDefault();
-        showCustomAlert("Please verify your mobile number first.");
       }
     });
   </script>

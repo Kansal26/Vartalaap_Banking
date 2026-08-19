@@ -372,20 +372,8 @@
           </div>
           <div class="form-group" th:if="${enabledFields.contains('mobileNumber')}">
             <label>Mobile Number<span class="required-star">*</span></label>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <input type="text" id="mobileNumber" placeholder="Enter mobile number" maxlength="10" minlength="10"
-                title="Phone Number must be 10 digits" pattern="\d{10}$" required style="flex: 1;" />
-              <button type="button" id="sendOtpBtn" onclick="sendOtp()" class="btn btn-primary">Send OTP</button>
-            </div>
-          </div>
-
-          <div class="form-group" id="otpSection" style="display: none;">
-            <label>Enter OTP</label>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <input type="text" id="otpInput" placeholder="Enter 6-digit OTP" maxlength="6" style="flex: 1;" />
-              <button type="button" id="verifyOtpBtn" onclick="verifyOtp()" class="btn btn-success">Verify</button>
-            </div>
-            <span id="otpMessage" style="font-size: 0.85rem; margin-top: 5px; display: block;"></span>
+            <input type="text" id="mobileNumber" placeholder="Enter mobile number" maxlength="10" minlength="10"
+              title="Phone Number must be 10 digits" pattern="^\d{10}$" required />
           </div>
 
           <!-- Dynamic Fields -->
@@ -538,108 +526,12 @@
     setupFileDisplay('panDoc', 'panFileName');
     setupFileDisplay('cancelledChequeDoc', 'cancelledChequeFileName');
 
-    // Aadhaar verification logic removed as per user request
-
-    // OTP Logic
-    let isOtpVerified = false;
-
-    function sendOtp() {
-      const mobileNumber = document.getElementById('mobileNumber').value;
-      if (!/^\d{10}$/.test(mobileNumber)) {
-        showCustomAlert("Please enter a valid 10-digit mobile number first.");
-        return;
-      }
-
-      const sendBtn = document.getElementById('sendOtpBtn');
-      sendBtn.disabled = true;
-      sendBtn.textContent = "Sending...";
-
-      // Get CSRF token - assuming it's available in a hidden input or meta tag. 
-      // If not present in form, we might need to add it or fetch it.
-      // Based on previous files, Thymeleaf adds it to forms.
-      // Let's check if the form has it.
-      const csrfTokenInput = document.querySelector('input[name="_csrf"]');
-      const csrfToken = csrfTokenInput ? csrfTokenInput.value : '';
-
-      fetch('/api/otp/send?phoneNumber=' + mobileNumber, {
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': csrfToken
-        }
-      })
-        .then(response => {
-          if (!response.ok) throw new Error("Network response was not ok");
-          return response.json();
-        })
-        .then(data => {
-          document.getElementById('otpSection').style.display = 'block';
-          sendBtn.textContent = "Resend OTP";
-          sendBtn.disabled = false;
-          // Native alert removed as per persistent demo card
-          console.log("Demo OTP:", data.otp);
-        })
-        .catch(err => {
-          console.error(err);
-          showCustomAlert("Failed to send OTP");
-          sendBtn.textContent = "Send OTP";
-          sendBtn.disabled = false;
-        });
-    }
-
-    function verifyOtp() {
-      const mobileNumber = document.getElementById('mobileNumber').value;
-      const otp = document.getElementById('otpInput').value;
-      const messageSpan = document.getElementById('otpMessage');
-
-      const csrfTokenInput = document.querySelector('input[name="_csrf"]');
-      const csrfToken = csrfTokenInput ? csrfTokenInput.value : '';
-
-      fetch('/api/otp/verify?phoneNumber=' + mobileNumber + '&otp=' + otp, {
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': csrfToken
-        }
-      })
-        .then(response => {
-          if (!response.ok) throw new Error("Network response was not ok");
-          return response.json();
-        })
-        .then(data => {
-          if (data.success) {
-            isOtpVerified = true;
-            showCustomAlert("✅ OTP Verified Successfully!");
-            messageSpan.textContent = "✅ OTP Verified Successfully!";
-            messageSpan.style.color = "green";
-            document.getElementById('verifyOtpBtn').disabled = true;
-            document.getElementById('otpInput').disabled = true;
-            document.getElementById('mobileNumber').readOnly = true;
-            document.getElementById('sendOtpBtn').style.display = 'none';
-          } else {
-            showCustomAlert("❌ Invalid OTP. Please try again.");
-            messageSpan.textContent = "❌ Invalid OTP. Please try again.";
-            messageSpan.style.color = "red";
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          showCustomAlert("❌ Verification failed.");
-          messageSpan.textContent = "❌ verification failed.";
-          messageSpan.style.color = "red";
-        });
-    }
-
-    // Prevent submission if OTP not verified or mandatory fields missing
+    // Prevent submission if mandatory fields missing
     document.getElementById('PMSBYForm').addEventListener('submit', function (e) {
       if (!this.checkValidity()) {
         e.preventDefault();
         showCustomAlert("Please fill all mandatory fields marked with a red star (*).");
         return;
-      }
-      
-      if (!isOtpVerified) {
-        e.preventDefault();
-        showCustomAlert("Please verify your mobile number with OTP before submitting.");
-        document.getElementById('mobileNumber').focus();
       }
     });
   </script>
