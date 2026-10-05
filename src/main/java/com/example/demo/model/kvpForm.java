@@ -3,7 +3,11 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
+import jakarta.persistence.Table;
+import jakarta.persistence.Index;
+
 @Entity
+@Table(indexes = @Index(columnList = "submitted_by"))
 public class kvpForm {
 
     @Id

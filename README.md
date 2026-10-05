@@ -170,6 +170,12 @@ mvn clean install
 
 # Start the application
 mvn spring-boot:run
+
+# Run all unit tests (skips benchmarks by default)
+mvn test
+
+# Run benchmarks (requires the benchmark profile and override of excluded groups)
+mvn test -Dgroups=benchmark -Dsurefire.excludedGroups="" -Dspring.profiles.active=benchmark
 ```
 Open **`http://localhost:8080`** in your web browser.
 
@@ -212,3 +218,22 @@ When the application boots, it automatically creates three accounts if they don'
     *   *Password*: *(leave blank)*
 *   **App Health Check**: Simple JSON service checking database connectivity
     *   *URL*: `http://localhost:8080/api/health`
+
+---
+
+## Analytics Query Optimization
+
+In this project, the `AnalyticsService.getBranchRankings()` method was optimized to move heavy data aggregation from the Java heap to the database.
+
+**The Problem:** The legacy implementation loaded 5 full entity tables (over 50,000 rows in production) into memory and performed loops to join users and aggregate scheme counts per branch. This caused significant latency and memory pressure.
+
+**The Solution:** We replaced it with a single native SQL `GROUP BY` query that unions the tables and maps directly into a lightweight projection. 
+
+Here are the measured results on a synthetic dataset of 50,000 form entries using H2 in-memory:
+
+| Implementation | Mean Time (ms) | Hibernate Queries | Entities Loaded |
+| :--- | :--- | :--- | :--- |
+| **Legacy** | ~53 ms | 6 | 50,050 |
+| **Optimized** | ~1 ms | 1 | 0 |
+
+For more detailed benchmark results, see [docs/BENCHMARKS.md](docs/BENCHMARKS.md).

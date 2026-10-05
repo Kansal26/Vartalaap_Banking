@@ -3,7 +3,10 @@ package com.example.demo.model;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+    @Index(columnList = "username"),
+    @Index(columnList = "branch")
+})
 public class User {
 
     @Id

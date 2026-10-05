@@ -41,6 +41,23 @@ public class AnalyticsService {
     private pmmyFormRepository pmmyRepo;
 
     public List<BranchPerformanceDTO> getBranchRankings() {
+        List<com.example.demo.repository.BranchPerformanceProjection> projections = userRepo.getBranchRankings();
+        List<BranchPerformanceDTO> rankings = projections.stream()
+                .map(p -> new BranchPerformanceDTO(p.getBranchName(), p.getApyCount(), p.getPmjjbyCount(), p.getPmsbyCount(), p.getKvpCount(), p.getPmmyCount()))
+                .collect(Collectors.toList());
+
+        // Ranks are assigned after sorting, which is already done by the query.
+        for (int i = 0; i < rankings.size(); i++) {
+            rankings.get(i).setRank(i + 1);
+        }
+        return rankings;
+    }
+
+    /**
+     * Legacy implementation kept for benchmark and parity testing.
+     */
+    @Deprecated
+    public List<BranchPerformanceDTO> getBranchRankingsLegacy() {
         // Fetch all users to map employees to branches
         List<User> users = userRepo.findAll();
         Map<String, String> employeeBranchMap = users.stream()

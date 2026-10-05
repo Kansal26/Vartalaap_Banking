@@ -7,7 +7,11 @@ import jakarta.persistence.Id;
 
 import java.time.LocalDate;
 
+import jakarta.persistence.Table;
+import jakarta.persistence.Index;
+
 @Entity
+@Table(indexes = @Index(columnList = "submitted_by"))
 public class pmsbyForm {
 
     @Id
