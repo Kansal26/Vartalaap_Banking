@@ -1,0 +1,21 @@
+step,issue,action,rows_affected
+dedupe,exact duplicate rows,dropped,97
+text,name casing/spacing noise,"trimmed, collapsed spaces, title-cased",1845
+status,case/space/typo variants,mapped to Approved/Rejected/Pending,1187
+status,unmappable status,left null and excluded from rate calculations,0
+dates,unparseable submission_date,"set to NaT, flagged",36
+dates,unparseable decided_date,set to NaT,0
+dates,submission_date after extract date,"flagged, excluded from time analysis",24
+dates,decided_date before submission_date,"decided_date nulled, flagged",58
+amount,"currency symbols, commas, decimals",parsed to numeric,4837
+age,impossible age (<18 or >100),"set to NaN, flagged",97
+age,missing age,left null,279
+age,age above scheme maximum,"flagged (real eligibility violation, kept)",117
+docs,Yes/Y/yes/1 and No/N/no/0 variants,mapped to boolean,36429
+join,submitted_by with no matching user,"branch set to 'Unknown', excluded from branch analysis",64
+join,usernames duplicated in users,first non-null-branch row wins,1
+dedupe,same applicant re-filed within 14 days,flagged as resubmission,143
+text,free-text rejection remarks,keyword rules -> 5 categories,1484
+amount,"amount outside scheme rule (PMJJBY != 436, PMSBY != 20, APY > 2x required, KVP/PMMY out of range)","flagged, not changed",42
+derived,Approved/Rejected rows with no usable decided_date,excluded from turnaround only,58
+scope,rows with missing or future submission_date,excluded from time-based analysis,60

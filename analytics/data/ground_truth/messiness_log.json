@@ -1,0 +1,14 @@
+{
+  "name_format_noise_rows": 1845,
+  "age_missing": 182,
+  "age_garbage_values": 97,
+  "age_text_suffix": 25,
+  "orphan_submitted_by": 64,
+  "submission_date_unparseable": 36,
+  "submission_date_in_future": 24,
+  "status_variants": 1187,
+  "decided_before_submitted": 58,
+  "amount_x10_typos": 48,
+  "exact_duplicate_rows_added": 97,
+  "resubmission_rows (near-duplicates, legitimately in data)": 143
+}
