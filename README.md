@@ -8,7 +8,7 @@ Vartalaap is a Spring Boot web portal that helps bank branches digitize and trac
 
 ## 🚀 Features
 
-- **Maker-Checker Workflow** — single-direction state machine (Draft → Pending → Approved / Rejected) with audit trail
+- **Maker-Checker Workflow** — status-driven approval flow (Pending → Approved / Rejected) with approver remarks
 - **Dynamic Form Engine** — admins can toggle or add custom form fields at runtime without code changes or redeployment
 - **Document Upload Pipeline** — UUID-prefixed local file storage; file paths persisted in DB, previewed by Checker in-browser
 - **Role-Based Access Control** — four distinct roles (Maker, Checker, Admin, Manager) enforced by Spring Security
@@ -83,25 +83,19 @@ graph TD
     AC -->|File Writes| FS
 ```
 
-### Application State Machine
+### Application Status Flow
 
-Every application follows a strict single-direction state machine to maintain audit integrity:
+Every application moves through a single-direction status flow:
 
 ```mermaid
 stateDiagram-v2
-    [*] --> DRAFT : Maker starts filling out the form
-    DRAFT --> PENDING : Maker uploads required documents and submits
+    [*] --> PENDING : Maker submits the form with required documents
 
-    state PENDING {
-        [*] --> Awaiting_Review
-        Awaiting_Review --> Checking_Documents
-    }
+    PENDING --> APPROVED : Checker approves, with remarks
+    PENDING --> REJECTED : Checker rejects, with remarks
 
-    PENDING --> APPROVED : Checker reviews and approves with comments
-    PENDING --> REJECTED : Checker rejects application with remarks
-
-    APPROVED --> [*] : Locked record / Ready for central registry export
-    REJECTED --> [*] : Closed record
+    APPROVED --> [*]
+    REJECTED --> [*]
 ```
 
 ---
@@ -267,6 +261,8 @@ mvn spring-boot:run
 ```
 
 Open **`http://localhost:8080`** in your browser.
+
+> To use the H2 web console locally, set `H2_CONSOLE_ENABLED=true` before starting the app; it is disabled by default.
 
 ### Running Tests
 
