@@ -4,3 +4,12 @@ target/
 __pycache__/
 .ipynb_checkpoints/
 .DS_Store
+/data/
+/data_backup/
+/uploads/
+*.mv.db
+*.trace.db
+cookies*.txt
+run_output*.txt
+build_output.txt
+.env
