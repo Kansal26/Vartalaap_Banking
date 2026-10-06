@@ -1,15 +1,29 @@
 # Vartalaap Banking Portal
 
-Vartalaap is a web portal built on Spring Boot that helps bank branches digitize and track applications for central government social security schemes—specifically APY, PMJJBY, PMSBY, KVP, and PMMY. 
+Vartalaap is a Spring Boot web portal that helps bank branches digitize and track applications for central government social security schemes — APY, PMJJBY, PMSBY, KVP, and PMMY. Rather than relying on manual paperwork, the system digitizes the entire application lifecycle using a Maker-Checker workflow. Data entered at the branch level by a Maker goes through a formal review process by a Checker before being approved. An accompanying analytics layer (Python, SQL, Tableau) processes the resulting data into branch-level KPIs and interactive dashboards.
 
-Rather than relying on manual paperwork, the system digitizes the entire lifecycle using a Maker-Checker workflow. Data entered at the branch level (by a Maker) goes through a formal audit and review process by a supervisor (Checker) before being approved. It also features a dynamic form engine that lets administrators toggle or add custom form fields on the fly without editing code or redeploying the service.
+> **All analytics data is synthetic.** It was generated to mirror the real schema, with deliberate data-quality problems and business patterns planted to validate the pipeline. See [`analytics/docs/planted_patterns.md`](analytics/docs/planted_patterns.md).
 
 ---
 
-## How the System is Structured
+## 🚀 Features
 
-### 1. High-Level Architecture
-The application follows a standard layered architecture. Requests pass through Spring Security for authentication and role redirection, hit the MVC controllers, invoke business logic in the services layer, and query the database via Spring Data JPA.
+- **Maker-Checker Workflow** — single-direction state machine (Draft → Pending → Approved / Rejected) with audit trail
+- **Dynamic Form Engine** — admins can toggle or add custom form fields at runtime without code changes or redeployment
+- **Document Upload Pipeline** — UUID-prefixed local file storage; file paths persisted in DB, previewed by Checker in-browser
+- **Role-Based Access Control** — four distinct roles (Maker, Checker, Admin, Manager) enforced by Spring Security
+- **OTP / UIDAI Verification** — pluggable SMS service (mock for local dev, Fast2SMS for production)
+- **Excel Export** — Apache POI engine for consolidated scheme reports
+- **Manager Dashboard** — real-time cross-branch performance metrics
+- **Analytics Layer** — standalone Python/SQL/Tableau pipeline for application-quality KPIs and business intelligence
+
+---
+
+## 🏗️ Architecture & Application Workflow
+
+### High-Level Architecture
+
+The application follows a standard layered architecture. Requests pass through Spring Security, hit MVC controllers, invoke business logic in service classes, and query the database via Spring Data JPA.
 
 ```mermaid
 graph TD
@@ -46,7 +60,7 @@ graph TD
     UI -->|HTTP Requests| SF
     SF --> Auth
     Auth --> Web
-    
+
     subgraph Web [Controller Context]
         AC
         ADC
@@ -55,7 +69,7 @@ graph TD
     end
 
     AC & ADC & MC & OC --> BusinessService[Service Context]
-    
+
     subgraph BusinessService
         UserService
         SchemeServices
@@ -69,118 +83,204 @@ graph TD
     AC -->|File Writes| FS
 ```
 
-### 2. Application Workflow & State Transitions
-To maintain audit logs and prevent internal fraud, every application follows a single-direction state machine:
+### Application State Machine
+
+Every application follows a strict single-direction state machine to maintain audit integrity:
 
 ```mermaid
 stateDiagram-v2
     [*] --> DRAFT : Maker starts filling out the form
     DRAFT --> PENDING : Maker uploads required documents and submits
-    
+
     state PENDING {
         [*] --> Awaiting_Review
         Awaiting_Review --> Checking_Documents
     }
-    
+
     PENDING --> APPROVED : Checker reviews and approves with comments
     PENDING --> REJECTED : Checker rejects application with remarks
-    
+
     APPROVED --> [*] : Locked record / Ready for central registry export
     REJECTED --> [*] : Closed record
 ```
 
 ---
 
-## Deep Dive: Key Engineering Solutions
+## 🛠️ Tech Stack
 
-### 1. The Dynamic Form Engine (No-Migration Schema Strategy)
-If you've ever worked with government forms, you know they change constantly. Adding a database column and redeploying the app every time a form gets a new checkbox is a nightmare. 
-
-To solve this, we built a hybrid database structure:
-*   **Static Columns**: Standard fields like name, Aadhar number, and phone number are mapped to actual database columns in their respective entities (e.g., `ApyForm`, `KvpForm`).
-*   **Dynamic Configurations**: The `FormConfig` table stores custom fields added by admins (such as "Is the applicant a taxpayer?").
-*   **Client-Side Serialization**: In the Thymeleaf templates, we load static inputs, fetch the branch's custom `FormConfig` entries, and render them. When the Maker clicks "Submit", a JavaScript script intercepts the submit event, gathers all dynamic inputs, serializes them into a single JSON string, and places it into a hidden input mapped to the entity's `additional_data` column.
-*   **Deserialization**: When the Checker reviews the form, the controller reads the JSON string from `additional_data` and parses it back into readable key-value pairs in the UI.
-
-### 2. Document Upload Pipeline
-To avoid storing heavy binary assets (Aadhar copies, PAN cards, cancelled cheques) directly inside the relational database, we use a local filesystem store:
-*   The upload controller (`AuthController.saveFile`) intercepts binary files via `MultipartFile`.
-*   To prevent file name collisions (e.g., two users uploading a file named `aadhar.jpg`), we generate a unique UUID and prepend it to the file name (`UUID + "_" + originalFileName`).
-*   The file is saved to the local `uploads/` directory on the server.
-*   Only the relative file path string (e.g., `/uploads/3f82..._aadhar.jpg`) is saved in the database. When the Checker views the application, Thymeleaf maps this path to render the document preview directly in the browser.
-
-### 3. SMS & OTP Verification Dispatcher
-To mock real banking OTP behaviors (like UIDAI Aadhar verification or secure logins), we built a pluggable SMS service:
-*   In `application.properties`, you can configure `sms.provider`.
-*   If set to `mock`, the `MockSmsService` intercepts the request and prints the generated OTP to the standard out terminal logs. This makes local testing free and simple since you don't need active network connectivity or API keys.
-*   If set to `fast2sms`, the application switches to `Fast2SmsService`, sending real SMS messages using their REST API endpoints.
+| Layer | Technologies |
+|:---|:---|
+| **Backend** | Java 17, Spring Boot 3.2.3, Spring Security, Spring Data JPA |
+| **Frontend** | Thymeleaf, HTML5, CSS, JavaScript |
+| **Database** | H2 (file-based, default), PostgreSQL (optional) |
+| **Messaging** | JavaMailSender (SMTP), Fast2SMS REST API |
+| **Export** | Apache POI (Excel) |
+| **Analytics** | Python, Pandas, SQL, Jupyter Notebook, Tableau Public |
+| **Build / Tools** | Maven 3.x, Git / GitHub, Docker |
 
 ---
 
-## User Roles & Access Management
+## 📊 Analytics & Business Intelligence
 
-Spring Security controls path-level access based on roles pre-configured during startup:
-
-| Role | Authority | Responsibilities |
-| :--- | :--- | :--- |
-| **Maker (User)** | `ROLE_MAKER` or `ROLE_USER` | Accesses `/dashboard`. Enters applicant details, triggers UIDAI verification, uploads files, and views status history. |
-| **Checker** | `ROLE_APPROVER` | Accesses `/approver_dashboard`. Reviews pending applications, examines document uploads, and flags entries as `APPROVED` or `REJECTED` with notes. |
-| **Branch Admin** | `ROLE_ADMIN` | Accesses `/admin`. Provisions new user accounts, toggles scheme fields, and triggers password recovery flows. |
-| **Manager** | `ROLE_MANAGER` | Accesses `/manager_dashboard`. Views metrics across all branch locations and exports consolidated reports. |
-
----
-
-## Codebase Directory Layout
+The `analytics/` directory contains a standalone data pipeline that processes synthetic banking application data through five stages:
 
 ```
-├── AlterDb.java                # Helper script to modify the database structure manually
-├── Dockerfile                  # Multi-stage build setup to bundle and package the app in a container
-├── pom.xml                     # Maven project configuration and dependencies
-├── uploads/                    # Folder where uploaded PDF and image documents are stored
-├── data/                       # Directory where the H2 file-based database is stored locally
-└── src/
-    └── main/
-        ├── java/com/example/demo/
-        │   ├── DemoApplication.java    # App entrypoint and seeding script for test accounts
-        │   ├── config/                 # Configurations for security, web filters, and async executors
-        │   ├── controller/             # Route handlers and API controller classes
-        │   ├── dto/                    # Data Transfer Objects used to compile dashboard stats
-        │   ├── model/                  # JPA Entity definitions (User, FormConfig, Schemes)
-        │   ├── repository/             # JPA database query interfaces
-        │   └── service/                # Business logic classes (Excel export, email SMTP, SMS dispatchers)
-        └── resources/
-            ├── application.properties  # Main configuration file (SMTP server setup, db paths)
-            ├── static/                 # Static files (CSS, client-side JS libraries)
-            └── templates/              # HTML layout views
+Raw banking application data
+        ↓
+Data cleaning & validation  (exact-duplicate removal, format normalisation,
+                             flagging suspect amounts, resubmissions, age issues)
+        ↓
+Feature engineering         (turnaround days, pending-age buckets, stale flag)
+        ↓
+SQL / Python analysis       (window-function scorecard, MoM trends, z-score anomaly detection)
+        ↓
+KPI & performance metrics   (approval rate, rejection reasons, branch rankings)
+        ↓
+Interactive Tableau dashboards
+```
+
+**Pipeline highlights:**
+
+- **Clean without silent deletion** — unambiguous issues are corrected (exact duplicates, format errors); ambiguous ones are flagged and logged to `data/clean/cleaning_log.csv`
+- **Audit step** — cleaning decisions are checked against a ground-truth answer key; amount-typo detection achieves 88% recall at 100% precision
+- **Anomaly detection** — branch rejection rate versus network rate using z-score (flagged at z > 3)
+- **SQL cross-check** — the SQL scorecard is asserted equal to the Pandas scorecard to prevent silent divergence
+
+**Analytics artefacts:**
+
+| Path | Purpose |
+|:---|:---|
+| `analytics/generate_data.py` | Seeded synthetic data generator (reproducible, seed 42) |
+| `analytics/notebooks/01_cleaning_and_analysis.ipynb` | Profiling, cleaning decision log, audit, analysis, SQL, findings |
+| `analytics/sql/analysis_queries.sql` | Window-function queries: scorecard, MoM, aging, turnaround, reason share |
+| `analytics/data/clean/` | Cleaned fact table and summary tables exported to Tableau |
+| `analytics/data/clean/cleaning_log.csv` | Every cleaning decision with rows affected |
+| `analytics/docs/data_dictionary.md` | Column definitions, known issues, proposed schema changes |
+| `analytics/charts/` | PNG charts used in findings |
+
+**Limitations noted in the pipeline:** `decided_date` and `approver_id` are not in the current Vartalaap schema (proposed additions). Rejection-reason accuracy is higher than a real deployment would show due to the small template set used for synthetic remarks.
+
+---
+
+## 📈 Interactive Analytics Dashboards
+
+The cleaned data is published to three interactive Tableau Public dashboards. All figures below exclude records where Branch = "Unknown".
+
+| Dashboard | Description |
+|:---|:---|
+| [📈 Executive Overview](https://public.tableau.com/views/Vartalaap_Banking_Application_Analytics/ExecutiveOverview?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link) | Overall application volume, approval/rejection performance, monthly trends, branch rankings, and scheme-wise distribution |
+| [🏢 Branch Drill-down](https://public.tableau.com/views/Vartalaap_Banking_Application_Analytics/BranchDrill-down?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link) | Branch-level performance, rankings, rejection reasons, and missing-document impact analysis |
+| [⚙️ Operations](https://public.tableau.com/views/Vartalaap_Banking_Application_Analytics/Operations?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link) | Approver turnaround times, pending application aging, and stale-pending workload by approver |
+
+The **Executive Overview** is the primary entry point and covers application volume, approval rates, monthly trends, branch performance, and scheme-wise distribution.
+
+---
+
+## 📸 Dashboard Preview
+
+[![Executive Overview](Executive%20Overview-2.png)](https://public.tableau.com/views/Vartalaap_Banking_Application_Analytics/ExecutiveOverview?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link)
+*📈 Executive Overview — click to open in Tableau Public*
+
+[![Branch Drill-down](Branch%20Drill-down-2.png)](https://public.tableau.com/views/Vartalaap_Banking_Application_Analytics/BranchDrill-down?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link)
+*🏢 Branch Drill-down — click to open in Tableau Public*
+
+[![Operations](Operations-2.png)](https://public.tableau.com/views/Vartalaap_Banking_Application_Analytics/Operations?:language=en-US&publish=yes&:display_count=n&:origin=viz_share_link)
+*⚙️ Operations — click to open in Tableau Public*
+
+---
+
+## 📌 Key Analytics Insights
+
+*(All figures exclude records where Branch = "Unknown". Data is synthetic — see note above.)*
+
+- **12,019 applications** were analyzed after excluding unknown branches.
+- **Overall approval rate: 87.4%**
+- **371 applications** remain in Pending status.
+- **290 applications** are classified as stale pending (aged beyond the expected turnaround window).
+- **Median turnaround time: 2 days** across all approvers.
+- **Approver 2003** has the highest median turnaround (5 days) and the largest stale-pending workload (214 applications).
+- **Manzol** has the highest observed branch rejection rate at **29.6%**.
+- **Gurugram Sector 14** has the highest approval rate at **92.1%**.
+- Missing documents are a significant rejection category, surfaced through reason-share analysis.
+
+---
+
+## 📁 Project Structure
+
+```
+Vartalaap Banking/
+├── analytics/                      # Standalone Python/SQL/Tableau analytics pipeline
+│   ├── generate_data.py            # Seeded synthetic data generator
+│   ├── build_notebook.py           # Rebuilds notebook from source cells
+│   ├── requirements.txt
+│   ├── data/
+│   │   ├── raw/                    # Raw generated data
+│   │   └── clean/                  # Cleaned fact table + summary tables (Tableau input)
+│   ├── notebooks/
+│   │   └── 01_cleaning_and_analysis.ipynb
+│   ├── sql/
+│   │   └── analysis_queries.sql    # Window-function queries
+│   ├── charts/                     # PNG charts from findings
+│   └── docs/
+│       ├── data_dictionary.md
+│       └── planted_patterns.md
+├── docs/
+│   └── BENCHMARKS.md               # SQL optimisation benchmark results
+├── src/
+│   └── main/
+│       ├── java/com/example/demo/
+│       │   ├── config/             # Security, web, async configuration
+│       │   ├── controller/         # Route handlers
+│       │   ├── dto/                # Data Transfer Objects
+│       │   ├── model/              # JPA entities (User, FormConfig, Schemes)
+│       │   ├── repository/         # Spring Data JPA interfaces
+│       │   └── service/            # Business logic (export, email, SMS)
+│       └── resources/
+│           ├── application.properties
+│           ├── static/             # CSS, client-side JS
+│           └── templates/          # Thymeleaf HTML views
+├── data/                           # H2 file database (local)
+├── uploads/                        # Uploaded PDF/image documents
+├── AlterDb.java                    # Manual DB migration helper
+├── Dockerfile                      # Multi-stage container build
+└── pom.xml
 ```
 
 ---
 
-## Running the Project
+## ⚙️ Installation & Setup
 
 ### Prerequisites
-*   **Java Runtime**: JDK 17 (or newer)
-*   **Build tool**: Maven 3.x
 
-### 1. Running Locally
-Build the packages and spin up the embedded Tomcat server:
+- **JDK 17** or newer
+- **Maven 3.x**
+- **Python 3.9+** and `pip` (for the analytics layer only)
+
+### Running the Application Locally
+
 ```bash
-# Clean project and download all dependencies
+# Download dependencies and compile
 mvn clean install
 
-# Start the application
+# Start the embedded Tomcat server
 mvn spring-boot:run
+```
 
-# Run all unit tests (skips benchmarks by default)
+Open **`http://localhost:8080`** in your browser.
+
+### Running Tests
+
+```bash
+# Run all unit and integration tests (benchmark tests excluded by default)
 mvn test
 
-# Run benchmarks (requires the benchmark profile and override of excluded groups)
+# Run benchmarks explicitly (requires in-memory H2 benchmark profile)
 mvn test -Dgroups=benchmark -Dsurefire.excludedGroups="" -Dspring.profiles.active=benchmark
 ```
-Open **`http://localhost:8080`** in your web browser.
 
-### 2. Switching to PostgreSQL (Optional)
-By default, the application runs on a local H2 file database (`data/demo`). If you want to connect to a production instance of PostgreSQL, pass the datasource variables through the environment:
+### Switching to PostgreSQL
+
+By default the application uses a local H2 file database (`data/demo`). To connect to PostgreSQL, set environment variables before starting:
 
 ```bash
 export DB_URL=jdbc:postgresql://your-db-host:5432/vartalaap_db
@@ -192,48 +292,84 @@ export DB_DIALECT=org.hibernate.dialect.PostgreSQLDialect
 mvn spring-boot:run
 ```
 
----
+### Running the Analytics Pipeline
 
-## Pre-seeded Credentials for Local Testing
+```bash
+cd analytics
 
-When the application boots, it automatically creates three accounts if they don't already exist so you don't have to register manually (see [DemoApplication.java](file:///Users/adikansal2608/Desktop/Vartalaap%20Banking/src/main/java/com/example/demo/DemoApplication.java)):
+pip install -r requirements.txt
 
-*   **Administrator Account**:
-    *   **Username**: `admin`
-    *   **Password**: `admin123`
-*   **Maker Account**:
-    *   **Username**: `maker01`
-    *   **Password**: `maker123`
-*   **Checker Account**:
-    *   **Username**: `approver01`
-    *   **Password**: `approver123`
+# Generate synthetic data
+python generate_data.py
 
----
+# (Optional) Rebuild notebook from source cells
+python build_notebook.py
 
-## Diagnostic Tools
-
-*   **H2 Database Interface**: Query active tables directly at `http://localhost:8080/h2-console`
-    *   *JDBC URL*: `jdbc:h2:file:./data/demo`
-    *   *User*: `sa`
-    *   *Password*: *(leave blank)*
-*   **App Health Check**: Simple JSON service checking database connectivity
-    *   *URL*: `http://localhost:8080/api/health`
+# Execute the full analysis notebook
+jupyter nbconvert --to notebook --execute --inplace notebooks/01_cleaning_and_analysis.ipynb
+```
 
 ---
 
-## Analytics Query Optimization
+## ▶️ Pre-seeded Credentials for Local Testing
 
-In this project, the `AnalyticsService.getBranchRankings()` method was optimized to move heavy data aggregation from the Java heap to the database.
+The application seeds three accounts on first boot (see [`DemoApplication.java`](src/main/java/com/example/demo/DemoApplication.java)):
 
-**The Problem:** The legacy implementation loaded 5 full entity tables (over 50,000 rows in production) into memory and performed loops to join users and aggregate scheme counts per branch. This caused significant latency and memory pressure.
+| Role | Username | Password |
+|:---|:---|:---|
+| Administrator | `admin` | `admin123` |
+| Maker | `maker01` | `maker123` |
+| Checker | `approver01` | `approver123` |
 
-**The Solution:** We replaced it with a single native SQL `GROUP BY` query that unions the tables and maps directly into a lightweight projection. 
+---
 
-Here are the measured results on a synthetic dataset of 50,000 form entries using H2 in-memory:
+## 🔧 Key Engineering Decisions
 
-| Implementation | Mean Time (ms) | Hibernate Queries | Entities Loaded |
-| :--- | :--- | :--- | :--- |
-| **Legacy** | ~53 ms | 6 | 50,050 |
-| **Optimized** | ~1 ms | 1 | 0 |
+### 1. Dynamic Form Engine (No-Migration Schema Strategy)
 
-For more detailed benchmark results, see [docs/BENCHMARKS.md](docs/BENCHMARKS.md).
+Government form fields change frequently. Rather than adding a database column per field change and redeploying, the application uses a hybrid approach:
+
+- **Static columns** map standard fields (name, Aadhaar, phone) to entity columns.
+- **`FormConfig` table** stores admin-defined custom fields per branch.
+- On submit, a JavaScript interceptor serialises all dynamic inputs into a JSON string stored in the entity's `additional_data` column.
+- The Checker view deserialises `additional_data` back into readable key-value pairs.
+
+### 2. Document Upload Pipeline
+
+Binary assets (Aadhaar copies, PAN cards, cancelled cheques) are stored on the local filesystem, not in the database:
+
+- Files are saved to `uploads/` with a UUID prefix to prevent name collisions.
+- Only the relative path string is persisted in the DB; Thymeleaf renders the document preview directly.
+
+### 3. Pluggable SMS / OTP Service
+
+Configured via `sms.provider` in `application.properties`:
+
+- `mock` — `MockSmsService` prints the OTP to stdout; no external API needed for local dev.
+- `fast2sms` — `Fast2SmsService` sends real SMS via the Fast2SMS REST API.
+
+### 4. Analytics Query Optimisation
+
+`AnalyticsService.getBranchRankings()` was refactored from in-memory Java aggregation to a single native SQL `UNION ALL` + `GROUP BY` query:
+
+| Implementation | Mean Time | Hibernate Queries | Entities Loaded |
+|:---|:---|:---|:---|
+| Legacy (Java aggregation) | ~54 ms | 6 | 50,050 |
+| Optimised (SQL `GROUP BY`) | ~1 ms | 1 | 0 |
+
+The ~54× speedup comes from eliminating entity hydration — materialising 50,050 JPA objects on every dashboard request is expensive regardless of database speed. Full results: [`docs/BENCHMARKS.md`](docs/BENCHMARKS.md).
+
+---
+
+## 🔗 Diagnostic Endpoints
+
+| Endpoint | Purpose |
+|:---|:---|
+| `http://localhost:8080/h2-console` | H2 web console (JDBC URL: `jdbc:h2:file:./data/demo`, User: `sa`, Password: blank) |
+| `http://localhost:8080/api/health` | JSON health check — confirms database connectivity |
+
+---
+
+## 👨‍💻 Author
+
+**Adi Kansal**
